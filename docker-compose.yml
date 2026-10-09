@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://bospa:${POSTGRES_PASSWORD}@postgres:5432/bospa
+    depends_on: [redis, postgres]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis:/data]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bospa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: bospa
+    volumes: [postgres:/var/lib/postgresql/data]
+    restart: unless-stopped
+
+  # HTTPS для Mini App: Caddy сам получает сертификат для DOMAIN
+  caddy:
+    image: caddy:2-alpine
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+    depends_on: [app]
+    restart: unless-stopped
+
+volumes:
+  redis:
+  postgres:
+  caddy:

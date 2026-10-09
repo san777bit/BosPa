@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>BosPa — карта</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <header class="bar">
+    <div id="routes" class="chips" role="tablist" aria-label="Маршрут"></div>
+    <div id="dirs" class="chips" role="tablist" aria-label="Направление"></div>
+  </header>
+
+  <section id="sheet" class="sheet" hidden>
+    <button id="sheet-close" class="sheet-close" aria-label="Закрыть">×</button>
+    <div id="sheet-body"></div>
+  </section>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
