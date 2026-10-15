@@ -1,0 +1,358 @@
+export const translations = {
+  ru: {
+    // Brand
+    brandName: 'BosPa',
+    brandBadge: 'ОНЛАЙН',
+    brandSubtitle: 'Бос па? · Алматы',
+    heroSubtitle: 'Загруженность общественного транспорта Алматы в реальном времени',
+
+    // Nav
+    navHome: 'Главная',
+    navRoutes: 'Маршруты',
+    navMap: 'Карта',
+    navShop: 'Магазин',
+
+    // Points
+    pointsBalance: 'Ваш баланс BosPa',
+    pointsUnit: 'баллов',
+    pointsBadgeUnit: 'B',
+    toShop: 'В магазин',
+
+    // Hub
+    hubTitle: 'Разделы приложения',
+    hubRoutesTitle: 'Маршруты',
+    hubRoutesSubtitle: 'Список всех автобусов и троллейбусов',
+    hubRoutesLink: 'Перейти к списку',
+    hubMapTitle: 'Карта онлайн',
+    hubMapSubtitle: 'Движение бортов и остановки на карте',
+    hubMapLink: 'Открыть карту',
+    hubShopTitle: 'Магазин баллов',
+    hubShopSubtitle: 'Обменивайте накопленные баллы на пополнение ONAY!, кофе и скидки',
+    hubShopBadge: 'Награды',
+
+    // Available routes
+    availableRoutes: 'Доступные маршруты',
+    allRoutesCount: 'Все маршруты',
+    trolleybus: 'Троллейбус',
+    bus: 'Автобус',
+    trolleyShort: 'ТБ',
+    busShort: 'АВТ',
+    stopsCount: 'остановок',
+    intervalText: 'Интервал 5–8 мин',
+    onMap: 'На карте',
+
+    // How it works
+    howItWorksTitle: 'Как работает BosPa?',
+    step1: 'Смотрите статус загруженности транспорта на карте перед выходом.',
+    step2: 'Отмечайтесь в салоне или на остановке в один тап.',
+    step3: 'Получайте по +10 баллов за каждый чекин и обменивайте в магазине.',
+
+    // Routes List Screen
+    routesSearchPlaceholder: 'Поиск маршрута по номеру или улице...',
+    routesFound: 'Найдено маршрутов',
+    filterAll: 'Все маршруты',
+    filterTrolley: 'Троллейбусы',
+    filterBuses: 'Автобусы',
+    verifiedOsm: 'Проверено OSM',
+    directionA: 'Направление A',
+    directionB: 'Направление B',
+    scheduleInterval: 'Интервал',
+    scheduleHours: 'Режим работы',
+    onLineCount: 'На линии',
+    openOnMap: 'Показать на карте',
+
+    // Map Screen
+    directionLabel: 'Направление:',
+    swapDirection: 'Сменить направление',
+    onLineBadge: 'на линии',
+    searchStopsPlaceholder: 'Поиск по названию остановки...',
+    stopsListTitle: 'Остановки маршрута',
+    arrivingEta: 'Время прибытия',
+    approaching: 'подъезжает',
+    minEta: 'мин',
+    currentSpeed: 'Текущая скорость',
+    stopLabel: 'Остановка',
+    vehicleLabel: 'Борт на линии',
+    basedOnReports: 'На основе отметок пассажиров',
+    ridersInVehicle: 'Пассажиров BosPa в салоне:',
+    checkinButtonStop: 'Отметить загруженность',
+    checkinButtonVehicle: 'Я еду здесь — отметиться',
+    speedUnit: 'км/ч',
+
+    // Checkin modal
+    checkinModalTitle: 'Какая загруженность в салоне?',
+    checkinRewardNote: 'За подтвержденную отметку вы получите',
+    checkinRewardPoints: '+10 баллов',
+    sendCheckin: 'Отправить отметку',
+    toastCheckinSuccess: 'Спасибо за вклад! Вам начислено +10 баллов BosPa',
+
+    // Occupancy levels
+    level0Badge: 'Свободно',
+    level0Hint: 'Есть сидячие места',
+    level1Badge: 'Плотненько',
+    level1Hint: 'Только стоя, но свободно',
+    level2Badge: 'Не влезешь',
+    level2Hint: 'Салон переполнен',
+    levelNoneBadge: 'Нет данных',
+    levelNoneHint: 'Будьте первым, кто отметится!',
+
+    // Shop Screen
+    shopBalanceLabel: 'Доступный баланс',
+    howToEarnMore: 'Как заработать больше:',
+    earnStopCheckin: 'Отметка загруженности на остановке:',
+    earnRideCheckin: 'Подтверждение заполненности в пути:',
+    earnFirstDaily: 'Первая отметка дня:',
+    catalogTitle: 'Каталог вознаграждений',
+    getReward: 'Получить',
+    notEnough: 'Не хватает',
+    notEnoughError: 'Недостаточно баллов',
+    successModalBadge: 'Успешно',
+    promoReceived: 'Промокод получен!',
+    promoHint: 'Предъявите этот промокод партнеру или активируйте в приложении ONAY!.',
+    doneBtn: 'Готово',
+
+    // Theme & Language
+    language: 'Язык',
+    theme: 'Тема',
+    themeLight: 'Светлая',
+    themeDark: 'Темная',
+  },
+
+  kz: {
+    // Brand
+    brandName: 'BosPa',
+    brandBadge: 'ОНЛАЙН',
+    brandSubtitle: 'Бос па? · Алматы көлігі',
+    heroSubtitle: 'Алматы қоғамдық көлігінің толымдылығы нақты уақытта',
+
+    // Nav
+    navHome: 'Басты бет',
+    navRoutes: 'Бағыттар',
+    navMap: 'Карта',
+    navShop: 'Дүкен',
+
+    // Points
+    pointsBalance: 'Сіздің BosPa балансыңыз',
+    pointsUnit: 'ұпай',
+    pointsBadgeUnit: 'B',
+    toShop: 'Дүкенге',
+
+    // Hub
+    hubTitle: 'Қосымша бөлімдері',
+    hubRoutesTitle: 'Бағыттар',
+    hubRoutesSubtitle: 'Барлық автобустар мен троллейбустар тізімі',
+    hubRoutesLink: 'Тізімге өту',
+    hubMapTitle: 'Онлайн карта',
+    hubMapSubtitle: 'Көлік қозғалысы мен аялдамалар картада',
+    hubMapLink: 'Картаны ашу',
+    hubShopTitle: 'Ұпайлар дүкені',
+    hubShopSubtitle: 'Жиналған ұпайларды ONAY! толтыруға, кофе мен жеңілдіктерге айырбастаңыз',
+    hubShopBadge: 'Сыйлықтар',
+
+    // Available routes
+    availableRoutes: 'Қолжетімді бағыттар',
+    allRoutesCount: 'Барлық бағыттар',
+    trolleybus: 'Троллейбус',
+    bus: 'Автобус',
+    trolleyShort: 'ТБ',
+    busShort: 'АВТ',
+    stopsCount: 'аялдама',
+    intervalText: 'Интервал 5–8 мин',
+    onMap: 'Картада',
+
+    // How it works
+    howItWorksTitle: 'BosPa қалай жұмыс істейді?',
+    step1: 'Шығар алдында көліктің толымдылығын картадан қараңыз.',
+    step2: 'Салонда немесе аялдамада бір басумен белгі қойыңыз.',
+    step3: 'Әр белгі үшін +10 ұпай алып, оларды дүкенде айырбастаңыз.',
+
+    // Routes List Screen
+    routesSearchPlaceholder: 'Бағыт нөмірі немесе көше бойынша іздеу...',
+    routesFound: 'Табылған бағыттар',
+    filterAll: 'Барлық бағыттар',
+    filterTrolley: 'Троллейбустар',
+    filterBuses: 'Автобустар',
+    verifiedOsm: 'OSM тексерген',
+    directionA: 'Бағыт A',
+    directionB: 'Бағыт B',
+    scheduleInterval: 'Интервал',
+    scheduleHours: 'Жұмыс уақыты',
+    onLineCount: 'Желіде',
+    openOnMap: 'Картада көрсету',
+
+    // Map Screen
+    directionLabel: 'Бағыты:',
+    swapDirection: 'Бағытты өзгерту',
+    onLineBadge: 'желіде',
+    searchStopsPlaceholder: 'Аялдама атауы бойынша іздеу...',
+    stopsListTitle: 'Бағыт аялдамалары',
+    arrivingEta: 'Келу уақыты',
+    approaching: 'жақындап қалды',
+    minEta: 'мин',
+    currentSpeed: 'Қазіргі жылдамдық',
+    stopLabel: 'Аялдама',
+    vehicleLabel: 'Желідегі көлік',
+    basedOnReports: 'Жолаушылар белгілері негізінде',
+    ridersInVehicle: 'Салондағы BosPa жолаушылары:',
+    checkinButtonStop: 'Толымдылықты белгілеу',
+    checkinButtonVehicle: 'Мен осындамын — белгілеу',
+    speedUnit: 'км/сағ',
+
+    // Checkin modal
+    checkinModalTitle: 'Салонда қаншалықты бос?',
+    checkinRewardNote: 'Расталған белгі үшін сіз аласыз',
+    checkinRewardPoints: '+10 ұпай',
+    sendCheckin: 'Белгіні жіберу',
+    toastCheckinSuccess: 'Қосқан үлесіңізге рақмет! Сізге +10 BosPa ұпайы берілді',
+
+    // Occupancy levels
+    level0Badge: 'Бос',
+    level0Hint: 'Отыратын орындар бар',
+    level1Badge: 'Орташа',
+    level1Hint: 'Тек тұрып қана, бірақ еркін',
+    level2Badge: 'Өте тығыз',
+    level2Hint: 'Салон лық толы',
+    levelNoneBadge: 'Дерек жоқ',
+    levelNoneHint: 'Алғашқы болып белгілеңіз!',
+
+    // Shop Screen
+    shopBalanceLabel: 'Қолжетімді баланс',
+    howToEarnMore: 'Көбірек ұпай жинау жолы:',
+    earnStopCheckin: 'Аялдамада толымдылықты белгілеу:',
+    earnRideCheckin: 'Жолда толымдылықты растау:',
+    earnFirstDaily: 'Күннің алғашқы белгісі:',
+    catalogTitle: 'Сыйлықтар каталогы',
+    getReward: 'Алу',
+    notEnough: 'Жетпейді',
+    notEnoughError: 'Ұпай жеткіліксіз',
+    successModalBadge: 'Сәтті',
+    promoReceived: 'Промокод алынды!',
+    promoHint: 'Бұл промокодты серіктеске көрсетіңіз немесе ONAY! қосымшасында белсендіріңіз.',
+    doneBtn: 'Дайын',
+
+    // Theme & Language
+    language: 'Тіл',
+    theme: 'Тақырып',
+    themeLight: 'Жарық',
+    themeDark: 'Күңгірт',
+  },
+
+  en: {
+    // Brand
+    brandName: 'BosPa',
+    brandBadge: 'LIVE',
+    brandSubtitle: 'Bos Pa? · Almaty Transit',
+    heroSubtitle: 'Real-time public transit crowd occupancy in Almaty',
+
+    // Nav
+    navHome: 'Home',
+    navRoutes: 'Routes',
+    navMap: 'Map',
+    navShop: 'Shop',
+
+    // Points
+    pointsBalance: 'Your BosPa Balance',
+    pointsUnit: 'points',
+    pointsBadgeUnit: 'B',
+    toShop: 'Go to Shop',
+
+    // Hub
+    hubTitle: 'App Sections',
+    hubRoutesTitle: 'Routes',
+    hubRoutesSubtitle: 'Full list of buses and trolleybuses',
+    hubRoutesLink: 'Open routes',
+    hubMapTitle: 'Live Map',
+    hubMapSubtitle: 'Real-time vehicle movement and stops',
+    hubMapLink: 'Open map',
+    hubShopTitle: 'Rewards Shop',
+    hubShopSubtitle: 'Redeem points for ONAY! top-ups, coffee and discounts',
+    hubShopBadge: 'Rewards',
+
+    // Available routes
+    availableRoutes: 'Available Routes',
+    allRoutesCount: 'All routes',
+    trolleybus: 'Trolleybus',
+    bus: 'Bus',
+    trolleyShort: 'TB',
+    busShort: 'BUS',
+    stopsCount: 'stops',
+    intervalText: 'Interval 5–8 min',
+    onMap: 'On Map',
+
+    // How it works
+    howItWorksTitle: 'How BosPa Works',
+    step1: 'Check live bus fullness on the map before heading out.',
+    step2: 'Report crowd status at your stop or on board in one tap.',
+    step3: 'Earn +10 points per report and redeem rewards in the shop.',
+
+    // Routes List Screen
+    routesSearchPlaceholder: 'Search route by number or street...',
+    routesFound: 'Routes found',
+    filterAll: 'All routes',
+    filterTrolley: 'Trolleybuses',
+    filterBuses: 'Buses',
+    verifiedOsm: 'Verified OSM',
+    directionA: 'Direction A',
+    directionB: 'Direction B',
+    scheduleInterval: 'Interval',
+    scheduleHours: 'Hours',
+    onLineCount: 'On line',
+    openOnMap: 'View on map',
+
+    // Map Screen
+    directionLabel: 'Direction:',
+    swapDirection: 'Change direction',
+    onLineBadge: 'on line',
+    searchStopsPlaceholder: 'Search stop by name...',
+    stopsListTitle: 'Route Stops',
+    arrivingEta: 'Arrival time',
+    approaching: 'approaching',
+    minEta: 'min',
+    currentSpeed: 'Current speed',
+    stopLabel: 'Stop',
+    vehicleLabel: 'Vehicle on line',
+    basedOnReports: 'Based on rider reports',
+    ridersInVehicle: 'BosPa riders on board:',
+    checkinButtonStop: 'Report crowd level',
+    checkinButtonVehicle: 'I am riding here — check in',
+    speedUnit: 'km/h',
+
+    // Checkin modal
+    checkinModalTitle: 'How crowded is it inside?',
+    checkinRewardNote: 'For a confirmed report you will earn',
+    checkinRewardPoints: '+10 points',
+    sendCheckin: 'Submit report',
+    toastCheckinSuccess: 'Thanks for contributing! You received +10 BosPa points',
+
+    // Occupancy levels
+    level0Badge: 'Empty',
+    level0Hint: 'Seats available',
+    level1Badge: 'Moderate',
+    level1Hint: 'Standing room only',
+    level2Badge: 'Crowded',
+    level2Hint: 'Full capacity',
+    levelNoneBadge: 'No data',
+    levelNoneHint: 'Be the first to report!',
+
+    // Shop Screen
+    shopBalanceLabel: 'Available Balance',
+    howToEarnMore: 'How to earn more:',
+    earnStopCheckin: 'Report occupancy at a stop:',
+    earnRideCheckin: 'Confirm capacity while riding:',
+    earnFirstDaily: 'First report of the day:',
+    catalogTitle: 'Rewards Catalog',
+    getReward: 'Redeem',
+    notEnough: 'Not enough',
+    notEnoughError: 'Not enough points',
+    successModalBadge: 'Success',
+    promoReceived: 'Promo Code Received!',
+    promoHint: 'Present this promo code to the partner or redeem in the ONAY! app.',
+    doneBtn: 'Done',
+
+    // Theme & Language
+    language: 'Language',
+    theme: 'Theme',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+  },
+};

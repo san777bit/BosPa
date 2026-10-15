@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "BosPa",
+    "slug": "bospa",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#10B981"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "kz.bospa.app"
+    },
+    "android": {
+      "package": "kz.bospa.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#10B981",
+        "foregroundImage": "./assets/logo.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/logo.png",
+      "bundler": "metro"
+    }
+  }
+}
