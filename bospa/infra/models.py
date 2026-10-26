@@ -15,6 +15,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
+    # > 0 — Telegram id, < 0 — пользователь мобильного приложения: -Device.id
     tg_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     referrer_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("users.tg_id"))
@@ -78,3 +79,13 @@ class VehicleRow(Base):
     ext_id: Mapped[str] = mapped_column(String(32), primary_key=True)
     route: Mapped[str] = mapped_column(String(16))
     kind: Mapped[str] = mapped_column(String(16))
+
+
+class Device(Base):
+    """Анонимная учётная запись мобильного приложения. Её пользователь — User с tg_id = -id."""
+    __tablename__ = "devices"
+
+    id: Mapped[int] = mapped_column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    # sha256 токена; сам токен отдаётся приложению один раз и не хранится
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

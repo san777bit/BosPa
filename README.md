@@ -8,12 +8,28 @@ Telegram-бот и Mini App с картой: загруженность трол
 
 ```bash
 uv sync
-cp .env.example .env        # вписать BOT_TOKEN
+cp .env.example .env        # BOT_TOKEN — только если нужен бот
 # нужен Redis на localhost:6379
 uv run python -m bospa
 ```
 
-Один процесс запускает бота (long polling), API для Mini App на `:8080` и цикл слияния источников.
+Один процесс запускает API на `:8080` (Mini App и мобильное приложение), цикл слияния источников и, если задан `BOT_TOKEN`, бота (long polling). Без токена бот выключен.
+
+### API мобильного приложения
+
+Приложение при первом запуске вызывает `POST /api/devices` и получает `{user_id, token}`; дальше токен идёт в заголовке `Authorization: Bearer <token>`. В базе хранится только sha256 токена. У пользователей приложения отрицательные id (`-devices.id`), поэтому они не пересекаются с Telegram id, а отметки, поездки, баллы и антифрод работают так же, как в боте.
+
+| Запрос | Что делает |
+|---|---|
+| `GET /api/routes`, `/api/vehicles`, `/api/stops/status` | карта; принимают токен устройства или Telegram `initData` |
+| `GET /api/me` | `{user_id, balance}` |
+| `POST /api/location` `{lat, lon}` | разовая геопозиция перед отметкой; без неё отметка засчитывается без баллов |
+| `POST /api/checkins` `{route, dir, stop_id, level}` | отметка загруженности (`level` 0–2); `accepted: false` — сработал кулдаун |
+| `POST /api/ride` `{route, dir}` | «Я в автобусе»: выбор маршрута |
+| `POST /api/ride/location` `{lat, lon}` | точка поездки; первая после выбора начинает трек; 409 — поездка не начата |
+| `DELETE /api/ride` | конец поездки |
+
+`API_DEV_NO_AUTH` открывает только чтение, запись всегда требует пользователя. Ограничения частоты регистрации устройств пока нет.
 
 ### Карта без Telegram и Redis
 
@@ -73,7 +89,7 @@ bospa/
 ├── services/      чекины, поездки, статус остановок, фоновый цикл слияния
 ├── sources/       источник Б: интерфейс VehicleSource и заглушка NullSource
 ├── bot/           aiogram: тексты, клавиатуры, обработчики
-├── api/           FastAPI для Mini App + проверка Telegram initData
+├── api/           FastAPI для Mini App и мобильного приложения, проверка Telegram initData
 └── webapp/        Mini App: MapLibre, без сборки
 ```
 

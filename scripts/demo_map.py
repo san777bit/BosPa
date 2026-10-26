@@ -24,7 +24,6 @@ from bospa.infra.db import create_schema, make_engine, make_sessionmaker  # noqa
 from bospa.infra.redis_repo import RedisRepo  # noqa: E402
 from bospa.services.fusion_loop import FusionRunner  # noqa: E402
 from bospa.services.rides import RideService  # noqa: E402
-from bospa.services.status import StatusService  # noqa: E402
 from bospa.sources.official import NullSource  # noqa: E402
 
 SPEED_MPS = 8.0      # ~29 км/ч
@@ -67,11 +66,12 @@ async def main() -> None:
     repo = RedisRepo(FakeAsyncRedis())
     engine = make_engine("sqlite+aiosqlite:///:memory:")
     await create_schema(engine)
-    rides = RideService(network, repo, make_sessionmaker(engine))
+    sessionmaker = make_sessionmaker(engine)
+    rides = RideService(network, repo, sessionmaker)
     fusion = FusionRunner(network, repo, NullSource())
     await seed_checkins(network, repo)
 
-    server = uvicorn.Server(uvicorn.Config(create_app(settings, network, repo, StatusService(network, repo)),
+    server = uvicorn.Server(uvicorn.Config(create_app(settings, network, repo, sessionmaker),
                                            host="127.0.0.1", port=settings.api_port))
     print(f"карта: http://localhost:{settings.api_port}/app/")
     await asyncio.gather(server.serve(), simulate(network, repo, rides), fusion.run(TICK_S))

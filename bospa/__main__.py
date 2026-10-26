@@ -1,4 +1,4 @@
-"""Запуск: бот (long polling), API для Mini App и цикл слияния — в одном процессе."""
+"""Запуск: API (Mini App и мобильное приложение), цикл слияния и бот, если задан BOT_TOKEN, — в одном процессе."""
 
 import asyncio
 import logging
@@ -35,39 +35,40 @@ async def main() -> None:
     await create_schema(engine)
     sessionmaker = make_sessionmaker(engine)
 
-    statuses = StatusService(network, repo)
     fusion = FusionRunner(network, repo, NullSource(), sessionmaker)
-
-    bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    dp = Dispatcher(
-        storage=RedisStorage(redis),
-        settings=settings,
-        network=network,
-        repo=repo,
-        sessionmaker=sessionmaker,
-        statuses=statuses,
-        checkins=CheckinService(network, repo, sessionmaker),
-        rides=RideService(network, repo, sessionmaker),
-    )
-    dp.include_routers(start.router, ride.router, flow.router)
-    if settings.webapp_url:
-        # Кнопка «Карта» слева от поля ввода во всех чатах с ботом
-        await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
-            text="Карта", web_app=WebAppInfo(url=settings.webapp_url)))
-
     api = uvicorn.Server(uvicorn.Config(
-        create_app(settings, network, repo, statuses),
+        create_app(settings, network, repo, sessionmaker),
         host=settings.api_host, port=settings.api_port, log_level="info",
     ))
+    tasks = [api.serve(), fusion.run(settings.fusion_interval_s)]
+
+    bot = None
+    if settings.bot_token:
+        bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        dp = Dispatcher(
+            storage=RedisStorage(redis),
+            settings=settings,
+            network=network,
+            repo=repo,
+            sessionmaker=sessionmaker,
+            statuses=StatusService(network, repo),
+            checkins=CheckinService(network, repo, sessionmaker),
+            rides=RideService(network, repo, sessionmaker),
+        )
+        dp.include_routers(start.router, ride.router, flow.router)
+        if settings.webapp_url:
+            # Кнопка «Карта» слева от поля ввода во всех чатах с ботом
+            await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(
+                text="Карта", web_app=WebAppInfo(url=settings.webapp_url)))
+        tasks.append(dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()))
+    else:
+        logging.info("BOT_TOKEN не задан: бот выключен, работают API и цикл слияния")
 
     try:
-        await asyncio.gather(
-            dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()),
-            api.serve(),
-            fusion.run(settings.fusion_interval_s),
-        )
+        await asyncio.gather(*tasks)
     finally:
-        await bot.session.close()
+        if bot:
+            await bot.session.close()
         await redis.aclose()
         await engine.dispose()
 

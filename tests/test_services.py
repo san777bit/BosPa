@@ -174,9 +174,9 @@ def test_init_data_verification():
     assert verify_init_data("garbage", TOKEN, NOW) is None
 
 
-async def test_api_endpoints(network, repo):
+async def test_api_endpoints(network, repo, sessionmaker):
     settings = Settings(bot_token=TOKEN)
-    app = create_app(settings, network, repo, StatusService(network, repo))
+    app = create_app(settings, network, repo, sessionmaker)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://t") as c:
         assert (await c.get("/api/routes")).status_code == 401
         h = {"X-Telegram-Init-Data": _init_data(1, int(time.time()))}

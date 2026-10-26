@@ -66,7 +66,7 @@ routes:
           - {{id: s3, name: Обратно, lat: {at(500, 15)[0]}, lon: {at(500, 15)[1]}}}
 """
     p = tmp_path / "routes.yaml"
-    p.write_text(yaml_text)
+    p.write_text(yaml_text, encoding="utf-8")
     d = Network.load(p).direction("x", "a")
     assert [s.id for s in d.stops] == ["s1", "s2", "s3"]
     assert d.stops[2].s == pytest.approx(3515, abs=5)
