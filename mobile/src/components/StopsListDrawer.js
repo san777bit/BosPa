@@ -7,8 +7,10 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Platform,
+  useWindowDimensions,
 } from 'react-native';
+import { BrutalBox, LevelPill } from './Brutal';
+import { fonts, statusColor } from '../theme/theme';
 
 export default function StopsListDrawer({
   visible,
@@ -20,12 +22,7 @@ export default function StopsListDrawer({
   onSelectStop,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
-
-  const levelsMap = [
-    { badge: t.level0Badge, color: '#10B981' },
-    { badge: t.level1Badge, color: '#F59E0B' },
-    { badge: t.level2Badge, color: '#EF4444' },
-  ];
+  const { height: windowHeight } = useWindowDimensions();
 
   const filteredStops = useMemo(() => {
     if (!searchQuery.trim()) return stopsWithStatus;
@@ -43,7 +40,13 @@ export default function StopsListDrawer({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: theme.card }]}>
+        <BrutalBox
+          theme={theme}
+          radius={24}
+          offset={5}
+          style={[styles.sheetWrap, { maxHeight: windowHeight * 0.8 }]}
+          contentStyle={styles.sheet}
+        >
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTextCol}>
@@ -52,17 +55,20 @@ export default function StopsListDrawer({
                 {directionTitle} ({stopsWithStatus.length} {t.stopsCount})
               </Text>
             </View>
-            <TouchableOpacity
-              style={[styles.closeBtn, { backgroundColor: theme.cardSecondary }]}
+            <BrutalBox
+              theme={theme}
+              radius={16}
+              offset={2}
+              color={theme.surfaceAlt}
+              contentStyle={styles.closeBtn}
               onPress={onClose}
-              activeOpacity={0.7}
             >
-              <Text style={[styles.closeText, { color: theme.textSecondary }]}>✕</Text>
-            </TouchableOpacity>
+              <Text style={[styles.closeText, { color: theme.text }]}>✕</Text>
+            </BrutalBox>
           </View>
 
           {/* Search bar */}
-          <View style={[styles.searchBar, { backgroundColor: theme.cardSecondary }]}>
+          <View style={[styles.searchBar, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
             <TextInput
               style={[styles.searchInput, { color: theme.text }]}
               placeholder={t.searchStopsPlaceholder}
@@ -73,7 +79,7 @@ export default function StopsListDrawer({
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Text style={[styles.clearSearch, { color: theme.textMuted }]}>✕</Text>
+                <Text style={[styles.clearSearch, { color: theme.text }]}>✕</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -84,21 +90,18 @@ export default function StopsListDrawer({
             keyExtractor={(item) => String(item.stop_id)}
             contentContainerStyle={styles.listContent}
             renderItem={({ item, index }) => {
-              const lvl = levelsMap[item.level] || {
-                badge: t.levelNoneBadge,
-                color: '#94A3B8',
-              };
+              const dotColor = statusColor(theme, item.level);
 
               const etaText =
                 item.eta_s == null
                   ? null
                   : item.eta_s < 60
                   ? t.approaching
-                  : `~${Math.round(item.eta_s / 60)} ${t.minEta}`;
+                  : `${Math.round(item.eta_s / 60)} ${t.minEta}`;
 
               return (
                 <TouchableOpacity
-                  style={[styles.stopItem, { borderBottomColor: theme.borderLight }]}
+                  style={[styles.stopItem, { borderBottomColor: theme.line }]}
                   onPress={() => {
                     onSelectStop(item);
                     onClose();
@@ -106,7 +109,7 @@ export default function StopsListDrawer({
                   activeOpacity={0.7}
                 >
                   <View style={styles.stopIndexCol}>
-                    <View style={[styles.stopDot, { backgroundColor: lvl.color }]} />
+                    <View style={[styles.stopDot, { backgroundColor: dotColor, borderColor: theme.outline }]} />
                     <Text style={[styles.stopIndex, { color: theme.textMuted }]}>{index + 1}</Text>
                   </View>
 
@@ -115,16 +118,13 @@ export default function StopsListDrawer({
                       {item.name}
                     </Text>
                     <View style={styles.statusRow}>
-                      <View style={[styles.miniDot, { backgroundColor: lvl.color }]} />
-                      <Text style={[styles.statusText, { color: lvl.color }]}>
-                        {lvl.badge}
-                      </Text>
+                      <LevelPill level={item.level} t={t} theme={theme} small />
                     </View>
                   </View>
 
                   {etaText ? (
-                    <View style={[styles.etaBadge, { backgroundColor: theme.primaryBg, borderColor: theme.primaryBorder }]}>
-                      <Text style={[styles.etaText, { color: theme.primary }]}>{etaText}</Text>
+                    <View style={[styles.etaBadge, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
+                      <Text style={[styles.etaText, { color: theme.text }]}>{etaText}</Text>
                     </View>
                   ) : (
                     <Text style={[styles.arrowIcon, { color: theme.textMuted }]}>›</Text>
@@ -133,7 +133,7 @@ export default function StopsListDrawer({
               );
             }}
           />
-        </View>
+        </BrutalBox>
       </View>
     </Modal>
   );
@@ -142,86 +142,79 @@ export default function StopsListDrawer({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: 'rgba(17, 17, 17, 0.6)',
     justifyContent: 'flex-end',
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  sheetWrap: {
+    alignSelf: 'stretch',
   },
   sheet: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    maxHeight: '80%',
-    paddingBottom: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 10,
-      },
-      web: {
-        boxShadow: '0 -4px 25px rgba(0,0,0,0.15)',
-      },
-    }),
+    flexShrink: 1,
+    overflow: 'hidden',
+    paddingBottom: 8,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingHorizontal: 18,
+    paddingTop: 16,
     paddingBottom: 12,
   },
   headerTextCol: {
     flex: 1,
+    marginRight: 10,
   },
   title: {
+    fontFamily: fonts.display,
     fontSize: 18,
-    fontWeight: '800',
   },
   subtitle: {
+    fontFamily: fonts.bodyBold,
     fontSize: 12,
     marginTop: 2,
-    fontWeight: '500',
   },
   closeBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
-    fontWeight: '700',
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 12,
+    marginHorizontal: 18,
+    marginBottom: 8,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
+    borderWidth: 2.5,
   },
   searchInput: {
     flex: 1,
+    fontFamily: fonts.body,
     fontSize: 14,
     outlineStyle: 'none',
   },
   clearSearch: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
     padding: 2,
   },
   listContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
   },
   stopItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     gap: 12,
   },
   stopIndexCol: {
@@ -229,49 +222,40 @@ const styles = StyleSheet.create({
     width: 24,
   },
   stopDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
     marginBottom: 2,
   },
   stopIndex: {
+    fontFamily: fonts.bodyBold,
     fontSize: 10,
-    fontWeight: '700',
   },
   stopNameCol: {
     flex: 1,
+    gap: 4,
   },
   stopName: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
-    fontWeight: '700',
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: 2,
-  },
-  miniDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '700',
   },
   etaBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 999,
+    borderWidth: 2,
   },
   etaText: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 12,
   },
   arrowIcon: {
-    fontSize: 18,
-    fontWeight: '300',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 20,
   },
 });

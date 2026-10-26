@@ -24,7 +24,7 @@ function generateInitialMapHtml(initialIsDark = false) {
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body, #map { width: 100%; height: 100%; background: #eef2f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; transition: background 0.3s ease; }
 
-    .leaflet-control-attribution { font-size: 9px !important; background: rgba(255,255,255,0.7) !important; border-radius: 4px; padding: 2px 5px !important; }
+    .leaflet-control-attribution { font-size: 9px !important; background: #ffffff !important; border: 1.5px solid #111111; border-radius: 6px; padding: 1px 5px !important; }
 
     /* Dark theme overrides */
     body.dark-theme, body.dark-theme #map { background: #0B1120 !important; }
@@ -38,23 +38,9 @@ function generateInitialMapHtml(initialIsDark = false) {
     body.dark-theme .leaflet-control-attribution a {
       color: #38BDF8 !important;
     }
-    body.dark-theme .bus-card {
-      background: #1E293B !important;
-      color: #F8FAFC !important;
-      border-color: #10B981 !important;
-      box-shadow: 0 4px 12px rgba(16,185,129,0.3) !important;
-    }
-    body.dark-theme .bus-num {
-      color: #F8FAFC !important;
-    }
-    body.dark-theme .bus-kind-pill {
-      background: #064E3B !important;
-      color: #34D399 !important;
-    }
     body.dark-theme .stop-label {
-      background: rgba(30, 41, 59, 0.92) !important;
-      color: #F8FAFC !important;
-      border: 1px solid #334155 !important;
+      background: #272B34 !important;
+      color: #F4F4F5 !important;
     }
 
     /* Custom Stop Marker */
@@ -65,30 +51,28 @@ function generateInitialMapHtml(initialIsDark = false) {
       position: relative;
     }
     .stop-marker-dot {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      border: 2.5px solid #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 2.5px solid #111111;
+      background-color: #E5E7EB;
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .stop-marker-dot.active {
-      transform: scale(1.6);
-      border-color: #0f172a;
-      box-shadow: 0 0 12px rgba(16,185,129,0.8);
+      transform: scale(1.5);
+      box-shadow: 2px 2px 0 #111111;
     }
     .stop-label {
       position: absolute;
-      left: 18px;
+      left: 20px;
       white-space: nowrap;
       font-size: 11px;
-      font-weight: 600;
-      color: #1e293b;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(4px);
-      padding: 2px 6px;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      font-weight: 800;
+      color: #111111;
+      background: #ffffff;
+      border: 2px solid #111111;
+      padding: 1px 6px;
+      border-radius: 8px;
       pointer-events: none;
       display: none;
     }
@@ -106,69 +90,73 @@ function generateInitialMapHtml(initialIsDark = false) {
       cursor: pointer;
     }
     .bus-card {
-      background: #ffffff;
-      border: 2px solid #059669;
-      border-radius: 12px;
-      padding: 3px 7px;
-      box-shadow: 0 4px 12px rgba(5,150,105,0.35);
+      background: #F9A8D4;
+      border: 2.5px solid #111111;
+      border-radius: 10px;
+      padding: 2px 7px;
+      box-shadow: 3px 3px 0 #111111;
       display: flex;
       align-items: center;
       gap: 5px;
       font-size: 11px;
       font-weight: 700;
-      color: #0f172a;
+      color: #111111;
       white-space: nowrap;
       transition: transform 0.2s ease;
     }
+    /* Тип транспорта (роль transit из theme.js) */
+    .bus-card.kind-trolleybus { background: #7CC8FF; }
+    .bus-card.kind-bus { background: #F9A8D4; }
     .bus-card:hover, .bus-card.selected {
       transform: scale(1.15);
-      border-color: #047857;
-      box-shadow: 0 6px 16px rgba(4,120,87,0.5);
     }
     .bus-kind-pill {
       font-size: 9px;
-      font-weight: 800;
-      color: #047857;
-      background: #ecfdf5;
+      font-weight: 900;
+      color: #ffffff;
+      background: #111111;
       padding: 1px 4px;
-      border-radius: 4px;
+      border-radius: 999px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .bus-num {
+      font-family: 'Unbounded', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       font-size: 12px;
-      font-weight: 800;
-      color: #0f172a;
+      font-weight: 900;
+      color: #111111;
     }
     .bus-crowd-dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      border: 1px solid #fff;
+      border: 2px solid #111111;
+      background-color: #E5E7EB;
     }
     .bus-arrow {
       width: 0;
       height: 0;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
-      border-top: 6px solid #059669;
-      margin-top: -1px;
+      border-top: 7px solid #111111;
+      margin-top: 1px;
       transition: transform 0.4s ease;
     }
     .bus-riders-badge {
       font-size: 9px;
-      color: #059669;
-      background: #d1fae5;
-      padding: 1px 4px;
-      border-radius: 4px;
-      font-weight: 700;
+      color: #111111;
+      background: #ffffff;
+      border: 1.5px solid #111111;
+      padding: 0 4px;
+      border-radius: 999px;
+      font-weight: 800;
     }
 
-    /* Occupancy colors */
-    .lvl-0 { background-color: #10B981 !important; }
-    .lvl-1 { background-color: #F59E0B !important; }
-    .lvl-2 { background-color: #EF4444 !important; }
-    .lvl-none { background-color: #94A3B8 !important; }
+    /* Occupancy colors (levelColors из theme.js) */
+    .lvl-0 { background-color: #4ADE80 !important; }
+    .lvl-1 { background-color: #FFB547 !important; }
+    .lvl-2 { background-color: #FF6B6B !important; }
+    .lvl-none { background-color: #E5E7EB !important; }
   </style>
 </head>
 <body class="${initialIsDark ? 'dark-theme' : ''}">
@@ -245,17 +233,17 @@ function generateInitialMapHtml(initialIsDark = false) {
       const lineData = data.direction && data.direction.line;
       if (lineData && lineData.length > 0) {
         routeLineCasing = L.polyline(lineData, {
-          color: '#ffffff',
-          weight: 8,
-          opacity: 0.9,
+          color: '#111111',
+          weight: 9,
+          opacity: 1,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(map);
 
         routeLine = L.polyline(lineData, {
-          color: '#059669',
+          color: routeKind === 'trolleybus' ? '#7CC8FF' : '#F9A8D4',
           weight: 5,
-          opacity: 0.95,
+          opacity: 1,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(map);
@@ -391,7 +379,7 @@ function generateInitialMapHtml(initialIsDark = false) {
           }
         } else {
           const html = '<div class="bus-marker-wrap">' +
-            '<div class="bus-card ' + (isSelected ? 'selected' : '') + '">' +
+            '<div class="bus-card kind-' + routeKind + ' ' + (isSelected ? 'selected' : '') + '">' +
               '<span class="bus-kind-pill">' + kindText + '</span>' +
               '<span class="bus-num">' + routeShort + '</span>' +
               '<div class="bus-crowd-dot ' + lvlClass + '"></div>' +
@@ -512,6 +500,19 @@ export default function TransitMap({
     }
   };
 
+  // Маршрут для карты: остановки и борта только этого направления. В props они могут быть
+  // ещё от прошлого маршрута — App получает новые данные чуть позже, чем меняется маршрут.
+  const routeMessage = () => {
+    const stopIds = new Set((direction?.stops || []).map((s) => s.id));
+    return {
+      action: 'SET_ROUTE',
+      route,
+      direction,
+      stops: (stopsWithStatus || []).filter((s) => stopIds.has(s.stop_id)),
+      vehicles: (vehicles || []).filter((v) => v.route === route?.id && v.dir === direction?.id),
+    };
+  };
+
   const handleMessage = (event) => {
     try {
       let data = event.nativeEvent ? event.nativeEvent.data : event.data;
@@ -525,13 +526,7 @@ export default function TransitMap({
           action: 'SET_THEME',
           isDark,
         });
-        sendToMap({
-          action: 'SET_ROUTE',
-          route,
-          direction,
-          stops: stopsWithStatus,
-          vehicles,
-        });
+        sendToMap(routeMessage());
       } else if (data.type === 'SELECT_STOP') {
         onSelectStop && onSelectStop(data.data);
       } else if (data.type === 'SELECT_VEHICLE') {
@@ -554,13 +549,7 @@ export default function TransitMap({
   // When route or direction changes
   useEffect(() => {
     if (isMapReady.current) {
-      sendToMap({
-        action: 'SET_ROUTE',
-        route,
-        direction,
-        stops: stopsWithStatus,
-        vehicles,
-      });
+      sendToMap(routeMessage());
     }
   }, [route?.id, direction?.id]);
 
@@ -601,9 +590,12 @@ export default function TransitMap({
     };
   }
 
+  const handleMessageRef = useRef(handleMessage);
+  handleMessageRef.current = handleMessage;
+
   useEffect(() => {
     if (Platform.OS === 'web') {
-      const listener = (event) => handleMessage(event);
+      const listener = (event) => handleMessageRef.current(event);
       window.addEventListener('message', listener);
       return () => window.removeEventListener('message', listener);
     }
@@ -633,7 +625,7 @@ export default function TransitMap({
       ) : null}
       {loading && (
         <View style={styles.loader}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.ink} />
         </View>
       )}
     </View>

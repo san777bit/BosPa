@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Animated } from 'react-native';
-import { Colors } from '../theme/colors';
+import { BrutalBox } from './Brutal';
+import { fonts, themes } from '../theme/theme';
 
-export default function RewardToast({ message, points = 10, title, visible, onHide }) {
+export default function RewardToast({ message, points = 10, title, visible, onHide, theme = themes.light }) {
+  // Жёлтый (награда) — только когда баллы реально начислены; остальные сообщения нейтральные
+  const rewarded = points > 0;
+  const fg = rewarded ? theme.onColor : theme.text;
   const translateY = new Animated.Value(-100);
   const opacity = new Animated.Value(0);
 
@@ -47,15 +51,15 @@ export default function RewardToast({ message, points = 10, title, visible, onHi
 
   return (
     <Animated.View style={[styles.container, { transform: [{ translateY }], opacity }]}>
-      <View style={styles.toastCard}>
-        <View style={styles.badgeWrap}>
-          <Text style={styles.badgeText}>+B</Text>
+      <BrutalBox theme={theme} color={rewarded ? theme.reward : theme.surface} radius={18} style={styles.toastWrap} contentStyle={styles.toastCard}>
+        <View style={[styles.badgeWrap, { backgroundColor: rewarded ? theme.reward : theme.surfaceAlt, borderColor: rewarded ? theme.onColor : theme.line }]}>
+          <Text style={[styles.badgeText, { color: fg }]}>+B</Text>
         </View>
         <View style={styles.textWrap}>
-          <Text style={styles.title}>{title || `+${points} баллов BosPa`}</Text>
-          <Text style={styles.desc}>{message}</Text>
+          <Text style={[styles.title, { color: fg }]}>{title || `+${points} баллов BosPa`}</Text>
+          <Text style={[styles.desc, { color: fg }]}>{message}</Text>
         </View>
-      </View>
+      </BrutalBox>
     </Animated.View>
   );
 }
@@ -69,55 +73,38 @@ const styles = StyleSheet.create({
     zIndex: 9999,
     alignItems: 'center',
   },
+  toastWrap: {
+    alignSelf: 'stretch',
+  },
   toastCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#064E3B',
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingHorizontal: 14,
     gap: 12,
-    borderWidth: 1,
-    borderColor: '#059669',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#059669',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.35,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 8,
-      },
-      web: {
-        boxShadow: '0 6px 20px rgba(5,150,105,0.35)',
-      },
-    }),
   },
   badgeWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#10B981',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   badgeText: {
+    fontFamily: fonts.display,
     fontSize: 12,
-    fontWeight: '900',
-    color: Colors.white,
   },
   textWrap: {
     flex: 1,
   },
   title: {
-    color: '#ECFDF5',
+    fontFamily: fonts.displayBold,
     fontSize: 14,
-    fontWeight: '800',
   },
   desc: {
-    color: '#A7F3D0',
-    fontSize: 11,
-    marginTop: 1,
+    fontFamily: fonts.body,
+    fontSize: 12,
+    marginTop: 2,
   },
 });

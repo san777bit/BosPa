@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Platform,
 } from 'react-native';
 import { IconSearch } from '../components/Icons';
+import { BrutalBox, RouteBadge } from '../components/Brutal';
+import { fonts } from '../theme/theme';
 
 export default function RoutesListScreen({
   routes = [],
@@ -34,9 +35,9 @@ export default function RoutesListScreen({
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
       {/* Search Header */}
-      <View style={[styles.searchSection, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <View style={[styles.searchBar, { backgroundColor: theme.cardSecondary }]}>
-          <IconSearch size={16} color={theme.textMuted} />
+      <View style={styles.searchSection}>
+        <BrutalBox theme={theme} radius={14} offset={3} style={styles.searchWrap} contentStyle={styles.searchBar}>
+          <IconSearch size={16} color={theme.text} />
           <TextInput
             style={[styles.searchInput, { color: theme.text }]}
             placeholder={t.routesSearchPlaceholder}
@@ -47,10 +48,10 @@ export default function RoutesListScreen({
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={[styles.clearSearch, { color: theme.textMuted }]}>✕</Text>
+              <Text style={[styles.clearSearch, { color: theme.text }]}>✕</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </BrutalBox>
 
         {/* Filters */}
         <View style={styles.filterRow}>
@@ -61,24 +62,24 @@ export default function RoutesListScreen({
           ].map((tab) => {
             const isSelected = filterType === tab.id;
             return (
-              <TouchableOpacity
+              <BrutalBox
                 key={tab.id}
-                style={[
-                  styles.filterTab,
-                  { backgroundColor: isSelected ? theme.primary : theme.cardSecondary },
-                ]}
+                theme={theme}
+                radius={999}
+                offset={3}
+                color={isSelected ? theme.action : theme.surface}
+                contentStyle={styles.filterTab}
                 onPress={() => setFilterType(tab.id)}
-                activeOpacity={0.7}
               >
                 <Text
                   style={[
                     styles.filterTabText,
-                    { color: isSelected ? '#FFFFFF' : theme.textSecondary },
+                    { color: isSelected ? theme.onAction : theme.text },
                   ]}
                 >
                   {tab.label}
                 </Text>
-              </TouchableOpacity>
+              </BrutalBox>
             );
           })}
         </View>
@@ -86,7 +87,7 @@ export default function RoutesListScreen({
 
       {/* Routes List */}
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.listHeader, { color: theme.textSecondary }]}>
+        <Text style={[styles.listHeader, { color: theme.text }]}>
           {t.routesFound}: {filteredRoutes.length}
         </Text>
 
@@ -96,24 +97,11 @@ export default function RoutesListScreen({
           const dirB = route.directions[1];
 
           return (
-            <View
-              key={route.id}
-              style={[
-                styles.routeCard,
-                { backgroundColor: theme.card, borderColor: theme.border },
-              ]}
-            >
+            <BrutalBox key={route.id} theme={theme} contentStyle={styles.routeCard}>
               {/* Card top */}
               <View style={styles.cardTop}>
                 <View style={styles.numberBadgeWrap}>
-                  <View
-                    style={[
-                      styles.routeBadge,
-                      { backgroundColor: isTrolley ? '#0284C7' : '#059669' },
-                    ]}
-                  >
-                    <Text style={styles.routeNumberText}>{route.short}</Text>
-                  </View>
+                  <RouteBadge route={route} theme={theme} />
                   <Text style={[styles.kindLabel, { color: theme.textSecondary }]}>
                     {isTrolley ? t.trolleybus : t.bus}
                   </Text>
@@ -121,8 +109,16 @@ export default function RoutesListScreen({
 
                 <View style={styles.cardHeaderInfo}>
                   <Text style={[styles.routeTitle, { color: theme.text }]}>{route.title}</Text>
-                  <View style={[styles.verifiedChip, { backgroundColor: theme.primaryBg, borderColor: theme.primaryBorder }]}>
-                    <Text style={[styles.verifiedChipText, { color: theme.primary }]}>
+                  <View
+                    style={[
+                      styles.verifiedChip,
+                      {
+                        backgroundColor: theme.surfaceAlt,
+                        borderColor: theme.line,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.verifiedChipText, { color: theme.textSecondary }]}>
                       {route.verified ? t.verifiedOsm : t.routeUnverified}
                     </Text>
                   </View>
@@ -130,9 +126,14 @@ export default function RoutesListScreen({
               </View>
 
               {/* Directions details */}
-              <View style={[styles.directionsBlock, { backgroundColor: theme.cardSecondary }]}>
+              <View
+                style={[
+                  styles.directionsBlock,
+                  { backgroundColor: theme.surfaceAlt, borderColor: theme.line },
+                ]}
+              >
                 <View style={styles.directionItem}>
-                  <View style={[styles.directionDot, { backgroundColor: theme.primary }]} />
+                  <View style={[styles.directionDot, { backgroundColor: theme.textMuted }]} />
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.dirLabel, { color: theme.textMuted }]}>{t.directionA}:</Text>
                     <Text style={[styles.dirValue, { color: theme.text }]}>{dirA?.title || ''}</Text>
@@ -144,7 +145,7 @@ export default function RoutesListScreen({
 
                 {dirB && (
                   <View style={styles.directionItem}>
-                    <View style={[styles.directionDot, { backgroundColor: theme.primary }]} />
+                    <View style={[styles.directionDot, { backgroundColor: theme.textMuted }]} />
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.dirLabel, { color: theme.textMuted }]}>{t.directionB}:</Text>
                       <Text style={[styles.dirValue, { color: theme.text }]}>{dirB.title}</Text>
@@ -158,36 +159,37 @@ export default function RoutesListScreen({
 
               {/* Meta information row */}
               <View style={styles.metaInfoRow}>
-                <View style={[styles.metaBadge, { backgroundColor: theme.cardSecondary }]}>
+                <View style={[styles.metaBadge, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
                   <Text style={[styles.metaBadgeLabel, { color: theme.textSecondary }]}>{t.scheduleInterval}</Text>
                   <Text style={[styles.metaBadgeValue, { color: theme.text }]}>5–8 {t.minEta}</Text>
                 </View>
 
-                <View style={[styles.metaBadge, { backgroundColor: theme.cardSecondary }]}>
+                <View style={[styles.metaBadge, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
                   <Text style={[styles.metaBadgeLabel, { color: theme.textSecondary }]}>{t.scheduleHours}</Text>
                   <Text style={[styles.metaBadgeValue, { color: theme.text }]}>06:00 – 23:00</Text>
                 </View>
 
-                <View style={[styles.metaBadge, { backgroundColor: theme.cardSecondary }]}>
+                <View style={[styles.metaBadge, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
                   <Text style={[styles.metaBadgeLabel, { color: theme.textSecondary }]}>{t.onLineCount}</Text>
-                  <Text style={[styles.metaBadgeValue, { color: theme.primary }]}>
+                  <Text style={[styles.metaBadgeValue, { color: theme.text }]}>
                     {isTrolley ? '4' : '5'}
                   </Text>
                 </View>
               </View>
 
               {/* Action buttons */}
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={[styles.openMapButton, { backgroundColor: theme.primary }]}
-                  onPress={() => onSelectRouteAndOpenMap(route.id, dirA.id)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.openMapButtonText}>{t.openOnMap}</Text>
-                  <Text style={styles.openMapArrow}>→</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+              <BrutalBox
+                theme={theme}
+                color={theme.action}
+                radius={14}
+                offset={3}
+                contentStyle={styles.openMapButton}
+                onPress={() => onSelectRouteAndOpenMap(route.id, dirA.id)}
+              >
+                <Text style={[styles.openMapButtonText, { color: theme.onAction }]}>{t.openOnMap}</Text>
+                <Text style={[styles.openMapArrow, { color: theme.onAction }]}>→</Text>
+              </BrutalBox>
+            </BrutalBox>
           );
         })}
       </ScrollView>
@@ -200,69 +202,55 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchSection: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
+    paddingBottom: 6,
+  },
+  searchWrap: {
+    marginBottom: 10,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 14,
     gap: 10,
-    marginBottom: 12,
   },
   searchInput: {
     flex: 1,
+    fontFamily: fonts.body,
     fontSize: 14,
     outlineStyle: 'none',
   },
   clearSearch: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
     padding: 2,
   },
   filterRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   filterTab: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 20,
   },
   filterTabText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 13,
   },
   listContainer: {
-    padding: 20,
-    gap: 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    gap: 14,
     paddingBottom: 40,
   },
   listHeader: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 13,
-    fontWeight: '700',
   },
   routeCard: {
-    borderRadius: 22,
-    padding: 18,
-    borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 3,
-      },
-      web: {
-        boxShadow: '0 4px 14px rgba(15,23,42,0.06)',
-      },
-    }),
+    padding: 16,
   },
   cardTop: {
     flexDirection: 'row',
@@ -272,49 +260,39 @@ const styles = StyleSheet.create({
   },
   numberBadgeWrap: {
     alignItems: 'center',
-    width: 58,
-  },
-  routeBadge: {
-    width: '100%',
-    paddingVertical: 7,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  routeNumberText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '900',
+    minWidth: 58,
   },
   kindLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    marginTop: 3,
+    fontFamily: fonts.bodyBold,
+    fontSize: 10,
+    marginTop: 4,
   },
   cardHeaderInfo: {
     flex: 1,
   },
   routeTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: fonts.displayBold,
+    fontSize: 14,
+    lineHeight: 20,
   },
   verifiedChip: {
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 6,
-    marginTop: 4,
-    borderWidth: 1,
+    borderRadius: 999,
+    marginTop: 6,
+    borderWidth: 2,
   },
   verifiedChipText: {
-    fontSize: 10,
-    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
+    fontSize: 11,
   },
   directionsBlock: {
     borderRadius: 14,
+    borderWidth: 2,
     padding: 12,
     gap: 10,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   directionItem: {
     flexDirection: 'row',
@@ -322,22 +300,23 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   directionDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     marginTop: 5,
   },
   dirLabel: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 10,
-    fontWeight: '700',
     textTransform: 'uppercase',
   },
   dirValue: {
+    fontFamily: fonts.bodyBold,
     fontSize: 13,
-    fontWeight: '700',
     marginTop: 1,
   },
   dirStopsCount: {
+    fontFamily: fonts.body,
     fontSize: 11,
     marginTop: 1,
   },
@@ -350,37 +329,31 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
     borderRadius: 12,
+    borderWidth: 2,
     alignItems: 'center',
   },
   metaBadgeLabel: {
-    fontSize: 9,
-    fontWeight: '700',
+    fontFamily: fonts.bodyBold,
+    fontSize: 10,
   },
   metaBadgeValue: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 12,
-    fontWeight: '800',
     marginTop: 2,
   },
-  actionRow: {
-    flexDirection: 'row',
-  },
   openMapButton: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    borderRadius: 14,
     gap: 8,
   },
   openMapButtonText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 15,
   },
   openMapArrow: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 16,
   },
 });

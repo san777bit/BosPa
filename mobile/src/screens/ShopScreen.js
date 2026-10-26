@@ -3,11 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   Modal,
-  Platform,
 } from 'react-native';
+import { BrutalBox } from '../components/Brutal';
+import { fonts } from '../theme/theme';
+
+// Фоны иконки/тега у карточек наград чередуются
 
 export default function ShopScreen({
   points = 50,
@@ -78,45 +80,52 @@ export default function ShopScreen({
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.bg }]} showsVerticalScrollIndicator={false}>
       {/* Balance Header */}
-      <View style={[styles.balanceCard, { backgroundColor: theme.primaryDark }]}>
-        <View style={styles.balanceHeader}>
-          <Text style={styles.balanceCardLabel}>{t.shopBalanceLabel}</Text>
+      <BrutalBox theme={theme} color={theme.reward} style={styles.balanceWrap} contentStyle={styles.balanceCard}>
+        <View style={[styles.balanceHeader, { borderBottomColor: theme.onColor }]}>
+          <Text style={[styles.balanceCardLabel, { color: theme.onColor }]}>{t.shopBalanceLabel}</Text>
           <View style={styles.balanceRow}>
-            <View style={styles.coinCircleLarge}>
-              <Text style={styles.coinLetterLarge}>B</Text>
+            <View style={[styles.coinCircleLarge, { backgroundColor: theme.surface, borderColor: theme.outline }]}>
+              <Text style={[styles.coinLetterLarge, { color: theme.text }]}>B</Text>
             </View>
-            <Text style={styles.balanceNum}>{points}</Text>
-            <Text style={styles.balanceUnit}>{t.pointsUnit}</Text>
+            <Text style={[styles.balanceNum, { color: theme.onColor }]}>{points}</Text>
+            <Text style={[styles.balanceUnit, { color: theme.onColor }]}>{t.pointsUnit}</Text>
           </View>
         </View>
 
         <View style={styles.earningRules}>
-          <Text style={styles.rulesTitle}>{t.howToEarnMore}</Text>
+          <Text style={[styles.rulesTitle, { color: theme.onColor }]}>{t.howToEarnMore}</Text>
           <View style={styles.ruleItem}>
-            <View style={styles.ruleDot} />
-            <Text style={styles.ruleText}>
+            <View style={[styles.ruleDot, { backgroundColor: theme.onColor }]} />
+            <Text style={[styles.ruleText, { color: theme.onColor }]}>
               {t.earnStopCheckin} <Text style={styles.boldText}>+10 B</Text>
             </Text>
           </View>
           <View style={styles.ruleItem}>
-            <View style={styles.ruleDot} />
-            <Text style={styles.ruleText}>
+            <View style={[styles.ruleDot, { backgroundColor: theme.onColor }]} />
+            <Text style={[styles.ruleText, { color: theme.onColor }]}>
               {t.earnRideCheckin} <Text style={styles.boldText}>+10 B</Text>
             </Text>
           </View>
           <View style={styles.ruleItem}>
-            <View style={styles.ruleDot} />
-            <Text style={styles.ruleText}>
+            <View style={[styles.ruleDot, { backgroundColor: theme.onColor }]} />
+            <Text style={[styles.ruleText, { color: theme.onColor }]}>
               {t.earnFirstDaily} <Text style={styles.boldText}>+15 B</Text>
             </Text>
           </View>
         </View>
-      </View>
+      </BrutalBox>
 
       {errorText.length > 0 && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>{errorText}</Text>
-        </View>
+        <BrutalBox
+          theme={theme}
+          color={theme.status[2]}
+          radius={14}
+          offset={3}
+          style={styles.errorWrap}
+          contentStyle={styles.errorBanner}
+        >
+          <Text style={[styles.errorText, { color: theme.onColor }]}>{errorText}</Text>
+        </BrutalBox>
       )}
 
       {/* Rewards Catalog */}
@@ -127,14 +136,8 @@ export default function ShopScreen({
           {rewardsData.map((item) => {
             const canAfford = points >= item.cost;
             return (
-              <View
-                key={item.id}
-                style={[
-                  styles.rewardCard,
-                  { backgroundColor: theme.card, borderColor: theme.border },
-                ]}
-              >
-                <View style={[styles.rewardCategoryBadge, { backgroundColor: theme.cardSecondary }]}>
+              <BrutalBox key={item.id} theme={theme} radius={20} contentStyle={styles.rewardCard}>
+                <View style={[styles.rewardCategoryBadge, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
                   <Text style={[styles.rewardCategoryText, { color: theme.textSecondary }]}>
                     {item.category}
                   </Text>
@@ -143,31 +146,31 @@ export default function ShopScreen({
                 <Text style={[styles.rewardTitle, { color: theme.text }]}>{item.title}</Text>
                 <Text style={[styles.rewardDesc, { color: theme.textSecondary }]}>{item.desc}</Text>
 
-                <View style={[styles.rewardBottomRow, { borderTopColor: theme.border }]}>
+                <View style={[styles.rewardBottomRow, { borderTopColor: theme.line }]}>
                   <View style={styles.priceTag}>
-                    <Text style={[styles.priceNum, { color: theme.coin }]}>{item.cost}</Text>
-                    <Text style={[styles.priceLabel, { color: theme.coin }]}>{t.pointsUnit}</Text>
+                    <Text style={[styles.priceNum, { color: theme.text }]}>{item.cost}</Text>
+                    <Text style={[styles.priceLabel, { color: theme.textSecondary }]}>{t.pointsUnit}</Text>
                   </View>
 
-                  <TouchableOpacity
-                    style={[
-                      styles.buyBtn,
-                      canAfford ? { backgroundColor: theme.primary } : { backgroundColor: theme.cardSecondary },
-                    ]}
+                  <BrutalBox
+                    theme={theme}
+                    color={canAfford ? theme.action : theme.surfaceAlt}
+                    radius={14}
+                    offset={3}
+                    contentStyle={styles.buyBtn}
                     onPress={() => handleBuy(item)}
-                    activeOpacity={canAfford ? 0.7 : 1}
                   >
                     <Text
                       style={[
                         styles.buyBtnText,
-                        canAfford ? { color: '#FFFFFF' } : { color: theme.textMuted },
+                        { color: canAfford ? theme.onAction : theme.textMuted },
                       ]}
                     >
                       {canAfford ? t.getReward : t.notEnough}
                     </Text>
-                  </TouchableOpacity>
+                  </BrutalBox>
                 </View>
-              </View>
+              </BrutalBox>
             );
           })}
         </View>
@@ -182,9 +185,9 @@ export default function ShopScreen({
           onRequestClose={() => setPurchasedCode(null)}
         >
           <View style={styles.overlay}>
-            <View style={[styles.successModal, { backgroundColor: theme.card }]}>
-              <View style={[styles.successBadge, { backgroundColor: theme.primaryBg }]}>
-                <Text style={[styles.successBadgeText, { color: theme.primary }]}>
+            <BrutalBox theme={theme} radius={24} offset={5} style={styles.successWrap} contentStyle={styles.successModal}>
+              <View style={[styles.successBadge, { backgroundColor: theme.reward, borderColor: theme.outline }]}>
+                <Text style={[styles.successBadgeText, { color: theme.onColor }]}>
                   {t.successModalBadge}
                 </Text>
               </View>
@@ -193,7 +196,7 @@ export default function ShopScreen({
                 {purchasedCode.reward.title}
               </Text>
 
-              <View style={[styles.codeContainer, { backgroundColor: theme.cardSecondary, borderColor: theme.border }]}>
+              <View style={[styles.codeContainer, { backgroundColor: theme.surfaceAlt, borderColor: theme.line }]}>
                 <Text style={[styles.codeText, { color: theme.text }]}>{purchasedCode.code}</Text>
               </View>
 
@@ -201,14 +204,18 @@ export default function ShopScreen({
                 {t.promoHint}
               </Text>
 
-              <TouchableOpacity
-                style={[styles.closeModalBtn, { backgroundColor: theme.primary }]}
+              <BrutalBox
+                theme={theme}
+                color={theme.action}
+                radius={16}
+                offset={3}
+                style={styles.closeModalWrap}
+                contentStyle={styles.closeModalBtn}
                 onPress={() => setPurchasedCode(null)}
-                activeOpacity={0.8}
               >
-                <Text style={styles.closeModalBtnText}>{t.doneBtn}</Text>
-              </TouchableOpacity>
-            </View>
+                <Text style={[styles.closeModalBtnText, { color: theme.onAction }]}>{t.doneBtn}</Text>
+              </BrutalBox>
+            </BrutalBox>
           </View>
         </Modal>
       )}
@@ -220,35 +227,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  balanceWrap: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 12,
+  },
   balanceCard: {
-    margin: 20,
-    borderRadius: 24,
-    padding: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#047857',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 4,
-      },
-      web: {
-        boxShadow: '0 6px 20px rgba(4,120,87,0.25)',
-      },
-    }),
+    padding: 18,
   },
   balanceHeader: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.2)',
-    paddingBottom: 16,
-    marginBottom: 16,
+    borderBottomWidth: 2.5,
+    paddingBottom: 14,
+    marginBottom: 14,
   },
   balanceCardLabel: {
-    color: '#D1FAE5',
+    fontFamily: fonts.bodyHeavy,
     fontSize: 12,
-    fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -259,37 +253,34 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   coinCircleLarge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#F59E0B',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coinLetterLarge: {
-    color: '#FFFFFF',
+    fontFamily: fonts.display,
     fontSize: 14,
-    fontWeight: '900',
   },
   balanceNum: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '900',
+    fontFamily: fonts.display,
+    fontSize: 36,
+    lineHeight: 44,
   },
   balanceUnit: {
-    color: '#D1FAE5',
+    fontFamily: fonts.bodyHeavy,
     fontSize: 15,
-    fontWeight: '700',
     alignSelf: 'flex-end',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   earningRules: {
     gap: 6,
   },
   rulesTitle: {
-    color: '#FFFFFF',
+    fontFamily: fonts.displayBold,
     fontSize: 12,
-    fontWeight: '800',
     marginBottom: 4,
   },
   ruleItem: {
@@ -298,91 +289,73 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ruleDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#34D399',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   ruleText: {
-    color: '#ECFDF5',
-    fontSize: 12,
+    fontFamily: fonts.body,
+    fontSize: 13,
   },
   boldText: {
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontFamily: fonts.bodyHeavy,
+  },
+  errorWrap: {
+    marginHorizontal: 16,
+    marginBottom: 12,
   },
   errorBanner: {
-    backgroundColor: '#FEE2E2',
-    marginHorizontal: 20,
-    marginBottom: 12,
     padding: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
   },
   errorText: {
-    color: '#B91C1C',
+    fontFamily: fonts.bodyBold,
     fontSize: 13,
-    fontWeight: '700',
   },
   catalogSection: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 40,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontFamily: fonts.display,
+    fontSize: 20,
     marginBottom: 14,
   },
   rewardsList: {
-    gap: 12,
+    gap: 14,
   },
   rewardCard: {
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 2,
-      },
-      web: {
-        boxShadow: '0 2px 8px rgba(15,23,42,0.05)',
-      },
-    }),
+    padding: 16,
   },
   rewardCategoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 3,
-    borderRadius: 8,
-    marginBottom: 8,
+    borderRadius: 999,
+    borderWidth: 2,
+    marginBottom: 10,
   },
   rewardCategoryText: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 11,
     textTransform: 'uppercase',
   },
   rewardTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: fonts.displayBold,
+    fontSize: 15,
+    lineHeight: 21,
   },
   rewardDesc: {
-    fontSize: 12,
+    fontFamily: fonts.body,
+    fontSize: 13,
     marginTop: 4,
-    lineHeight: 16,
+    lineHeight: 18,
     marginBottom: 14,
   },
   rewardBottomRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopWidth: 1,
+    borderTopWidth: 2,
     paddingTop: 12,
   },
   priceTag: {
@@ -391,53 +364,56 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   priceNum: {
-    fontSize: 18,
-    fontWeight: '900',
+    fontFamily: fonts.display,
+    fontSize: 22,
   },
   priceLabel: {
+    fontFamily: fonts.bodyBold,
     fontSize: 12,
-    fontWeight: '700',
   },
   buyBtn: {
     paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 14,
+    paddingVertical: 10,
+    alignItems: 'center',
   },
   buyBtnText: {
-    fontSize: 12,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 14,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: 'rgba(17, 17, 17, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  successModal: {
+  successWrap: {
     width: '100%',
     maxWidth: 380,
-    borderRadius: 28,
-    padding: 24,
+  },
+  successModal: {
+    padding: 22,
     alignItems: 'center',
   },
   successBadge: {
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: 999,
+    borderWidth: 2,
     marginBottom: 12,
   },
   successBadgeText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 11,
-    fontWeight: '800',
     textTransform: 'uppercase',
   },
   successTitle: {
-    fontSize: 20,
-    fontWeight: '900',
+    fontFamily: fonts.display,
+    fontSize: 22,
     marginBottom: 4,
   },
   successSub: {
+    fontFamily: fonts.body,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 16,
@@ -446,30 +422,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 14,
-    borderWidth: 2,
+    borderWidth: 2.5,
     borderStyle: 'dashed',
     marginBottom: 12,
   },
   codeText: {
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: 2,
+    fontFamily: fonts.display,
+    fontSize: 16,
+    letterSpacing: 1.5,
   },
   codeHint: {
-    fontSize: 11,
+    fontFamily: fonts.body,
+    fontSize: 12,
     textAlign: 'center',
-    lineHeight: 16,
-    marginBottom: 20,
+    lineHeight: 17,
+    marginBottom: 18,
+  },
+  closeModalWrap: {
+    alignSelf: 'stretch',
   },
   closeModalBtn: {
-    width: '100%',
     paddingVertical: 14,
-    borderRadius: 16,
     alignItems: 'center',
   },
   closeModalBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 16,
   },
 });

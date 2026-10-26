@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { IconTheme } from './Icons';
+import { BrutalBox } from './Brutal';
+import { fonts } from '../theme/theme';
+
+const LANGUAGES = ['ru', 'kz', 'en'];
 
 export default function Header({
-  points = 50,
+  points = 0,
   lang = 'ru',
   onChangeLang,
   isDark = false,
@@ -11,82 +15,34 @@ export default function Header({
   onOpenShop,
   theme,
 }) {
-  const languages = ['ru', 'kz', 'en'];
+  // Одна кнопка вместо переключателя: RU → KZ → EN по кругу
+  const nextLang = LANGUAGES[(LANGUAGES.indexOf(lang) + 1) % LANGUAGES.length];
 
   return (
-    <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-      <View style={styles.left}>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <View style={styles.brandInfo}>
-          <View style={styles.titleRow}>
-            <Text style={[styles.title, { color: theme.text }]}>BosPa</Text>
-            <View style={[styles.badge, { backgroundColor: theme.primary }]}>
-              <Text style={styles.badgeText}>LIVE</Text>
-            </View>
-          </View>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            {lang === 'kz' ? 'Бос па? · Алматы' : lang === 'en' ? 'Bos Pa? · Almaty' : 'Бос па? · Алматы'}
-          </Text>
-        </View>
-      </View>
+    <View style={[styles.header, { backgroundColor: theme.bg }]}>
+      <Text style={[styles.title, { color: theme.text }]}>BosPa</Text>
 
       <View style={styles.right}>
-        {/* Language selector segmented control */}
-        <View style={[styles.langSwitch, { backgroundColor: theme.cardSecondary, borderColor: theme.border }]}>
-          {languages.map((l) => {
-            const isActive = lang === l;
-            return (
-              <TouchableOpacity
-                key={l}
-                style={[
-                  styles.langBtn,
-                  isActive && { backgroundColor: theme.primary },
-                ]}
-                onPress={() => onChangeLang(l)}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    styles.langText,
-                    { color: isActive ? '#FFFFFF' : theme.textSecondary },
-                  ]}
-                >
-                  {l.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Dark / Light Mode Button */}
-        <TouchableOpacity
-          style={[styles.iconButton, { backgroundColor: theme.cardSecondary, borderColor: theme.border }]}
-          onPress={onToggleTheme}
-          activeOpacity={0.7}
+        <BrutalBox
+          theme={theme}
+          radius={12}
+          offset={3}
+          contentStyle={styles.squareBtn}
+          onPress={() => onChangeLang(nextLang)}
         >
+          <Text style={[styles.langText, { color: theme.text }]}>{lang.toUpperCase()}</Text>
+        </BrutalBox>
+
+        <BrutalBox theme={theme} radius={12} offset={3} contentStyle={styles.squareBtn} onPress={onToggleTheme}>
           <IconTheme size={18} color={theme.text} isDark={isDark} />
-        </TouchableOpacity>
+        </BrutalBox>
 
-        {/* Points balance */}
-        <TouchableOpacity
-          style={[
-            styles.pointsPill,
-            { backgroundColor: theme.coinBg, borderColor: theme.coinBorder },
-          ]}
-          onPress={onOpenShop}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.coinCircle, { backgroundColor: theme.coin }]}>
-            <Text style={styles.coinLetter}>B</Text>
+        <BrutalBox theme={theme} radius={999} offset={3} contentStyle={styles.pointsPill} onPress={onOpenShop}>
+          <View style={[styles.coin, { backgroundColor: theme.reward, borderColor: theme.outline }]}>
+            <Text style={[styles.coinLetter, { color: theme.onColor }]}>B</Text>
           </View>
-          <Text style={[styles.pointsValue, { color: isDark ? '#FDE68A' : '#92400E' }]}>
-            {points}
-          </Text>
-        </TouchableOpacity>
+          <Text style={[styles.pointsValue, { color: theme.text }]}>{points}</Text>
+        </BrutalBox>
       </View>
     </View>
   );
@@ -97,113 +53,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-      web: {
-        boxShadow: '0 2px 8px rgba(15,23,42,0.06)',
-      },
-    }),
-  },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  logo: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-  },
-  brandInfo: {
-    justifyContent: 'center',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 4,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontFamily: fonts.display,
+    fontSize: 28,
     letterSpacing: -0.5,
-  },
-  badge: {
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 5,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 8,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    fontSize: 10,
-    fontWeight: '500',
   },
   right: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  langSwitch: {
-    flexDirection: 'row',
-    borderRadius: 14,
-    padding: 2,
-    borderWidth: 1,
-  },
-  langBtn: {
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  langText: {
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  iconButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  squareBtn: {
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+  },
+  langText: {
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 12,
   },
   pointsPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-    gap: 4,
+    gap: 8,
+    height: 38,
+    paddingLeft: 5,
+    paddingRight: 14,
   },
-  coinCircle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+  coin: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coinLetter: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '900',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 12,
   },
   pointsValue: {
-    fontSize: 12,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 16,
   },
 });

@@ -9,9 +9,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { themes } from './src/theme/theme';
+import { useFonts } from 'expo-font';
+import { Unbounded_700Bold, Unbounded_900Black } from '@expo-google-fonts/unbounded';
+import {
+  Onest_500Medium,
+  Onest_600SemiBold,
+  Onest_700Bold,
+  Onest_800ExtraBold,
+} from '@expo-google-fonts/onest';
+import { themes, fonts } from './src/theme/theme';
 import { translations } from './src/i18n/translations';
-import { Api } from './src/services/api';
+import { Api, stopsWithoutStatus } from './src/services/api';
 import { getCurrentLocation } from './src/services/location';
 import Header from './src/components/Header';
 import RouteSelector from './src/components/RouteSelector';
@@ -26,8 +34,24 @@ import RoutesListScreen from './src/screens/RoutesListScreen';
 import ShopScreen from './src/screens/ShopScreen';
 import { IconHome, IconMap, IconRoutes, IconShop } from './src/components/Icons';
 
+const NAV_TABS = [
+  { id: 'home', Icon: IconHome, label: 'navHome' },
+  { id: 'routes', Icon: IconRoutes, label: 'navRoutes' },
+  { id: 'map', Icon: IconMap, label: 'navMap' },
+  { id: 'shop', Icon: IconShop, label: 'navShop' },
+];
+
 export default function App() {
   const mapRef = useRef(null);
+  // Без шрифтов (ошибка загрузки) приложение работает на системных
+  const [fontsLoaded, fontsError] = useFonts({
+    Unbounded_700Bold,
+    Unbounded_900Black,
+    Onest_500Medium,
+    Onest_600SemiBold,
+    Onest_700Bold,
+    Onest_800ExtraBold,
+  });
 
   const [lang, setLang] = useState('ru');
   const [isDark, setIsDark] = useState(false);
@@ -93,6 +117,14 @@ export default function App() {
     setSelectedItem(null);
     setActiveTab('map');
   };
+
+  // При смене маршрута данные прошлого сбрасываются сразу, не дожидаясь сервера:
+  // иначе карта, список остановок и счётчик «на линии» показывают чужие остановки и борта
+  useEffect(() => {
+    setVehicles([]);
+    setStopsWithStatus(currentDirection ? stopsWithoutStatus(currentDirection) : []);
+    setSelectedItem(null);
+  }, [currentRoute?.id, currentDirection?.id]);
 
   // Маршрут приходит в карту, пока вкладка скрыта, — при открытии показываем его целиком
   useEffect(() => {
@@ -219,7 +251,7 @@ export default function App() {
     setUserPoints((prev) => Math.max(0, prev - amount));
   };
 
-  if (loadState !== 'ready' || !currentRoute) {
+  if (loadState !== 'ready' || !currentRoute || !(fontsLoaded || fontsError)) {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={[styles.safeArea, styles.centered, { backgroundColor: currentTheme.bg }]}>
@@ -227,16 +259,16 @@ export default function App() {
             <>
               <Text style={[styles.statusText, { color: currentTheme.text }]}>{t.loadError}</Text>
               <TouchableOpacity
-                style={[styles.retryButton, { backgroundColor: currentTheme.primary }]}
+                style={[styles.retryButton, { backgroundColor: currentTheme.action }]}
                 onPress={loadInitial}
                 activeOpacity={0.8}
               >
-                <Text style={styles.retryText}>{t.retry}</Text>
+                <Text style={[styles.retryText, { color: currentTheme.onAction }]}>{t.retry}</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
-              <ActivityIndicator size="large" color={currentTheme.primary} />
+              <ActivityIndicator size="large" color={currentTheme.text} />
               <Text style={[styles.statusText, { color: currentTheme.textSecondary }]}>
                 {t.loadingData}
               </Text>
@@ -250,12 +282,12 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: currentTheme.card }]}
+        style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}
         edges={['top', 'left', 'right']}
       >
         <StatusBar
           barStyle={currentTheme.statusBarStyle}
-          backgroundColor={currentTheme.card}
+          backgroundColor={currentTheme.bg}
         />
 
         <View style={[styles.container, { backgroundColor: currentTheme.bg }]}>
@@ -351,87 +383,21 @@ export default function App() {
             </View>
           </View>
 
-          <View
-            style={[
-              styles.bottomNav,
-              { backgroundColor: currentTheme.navBg, borderTopColor: currentTheme.navBorder },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setActiveTab('home')}
-              activeOpacity={0.7}
-            >
-              <IconHome
-                size={20}
-                color={activeTab === 'home' ? currentTheme.primary : currentTheme.textMuted}
-              />
-              <Text
-                style={[
-                  styles.navLabel,
-                  { color: activeTab === 'home' ? currentTheme.primary : currentTheme.textMuted },
-                ]}
-              >
-                {t.navHome}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setActiveTab('routes')}
-              activeOpacity={0.7}
-            >
-              <IconRoutes
-                size={20}
-                color={activeTab === 'routes' ? currentTheme.primary : currentTheme.textMuted}
-              />
-              <Text
-                style={[
-                  styles.navLabel,
-                  { color: activeTab === 'routes' ? currentTheme.primary : currentTheme.textMuted },
-                ]}
-              >
-                {t.navRoutes}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setActiveTab('map')}
-              activeOpacity={0.7}
-            >
-              <IconMap
-                size={20}
-                color={activeTab === 'map' ? currentTheme.primary : currentTheme.textMuted}
-              />
-              <Text
-                style={[
-                  styles.navLabel,
-                  { color: activeTab === 'map' ? currentTheme.primary : currentTheme.textMuted },
-                ]}
-              >
-                {t.navMap}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.navItem}
-              onPress={() => setActiveTab('shop')}
-              activeOpacity={0.7}
-            >
-              <IconShop
-                size={20}
-                color={activeTab === 'shop' ? currentTheme.primary : currentTheme.textMuted}
-              />
-              <Text
-                style={[
-                  styles.navLabel,
-                  { color: activeTab === 'shop' ? currentTheme.primary : currentTheme.textMuted },
-                ]}
-              >
-                {t.navShop}
-              </Text>
-            </TouchableOpacity>
+          <View style={[styles.bottomNav, { backgroundColor: currentTheme.navBg }]}>
+            {NAV_TABS.map(({ id, Icon, label }) => {
+              const active = activeTab === id;
+              return (
+                <TouchableOpacity
+                  key={id}
+                  style={[styles.navItem, active && { backgroundColor: currentTheme.navActive }]}
+                  onPress={() => setActiveTab(id)}
+                  activeOpacity={0.7}
+                >
+                  <Icon size={20} color={active ? currentTheme.navIconActive : currentTheme.navIcon} />
+                  <Text style={[styles.navLabel, { color: active ? currentTheme.navIconActive : currentTheme.navIcon }]}>{t[label]}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -443,7 +409,7 @@ export default function App() {
                   name:
                     selectedItem.kind === 'stop'
                       ? selectedItem.data.name
-                      : `${t.vehicleLabel} ${selectedItem.data.ext_id}`,
+                      : `${t.vehicleLabel} ${selectedItem.data.ext_id || ''}`.trim(),
                 }
               : null
           }
@@ -468,6 +434,7 @@ export default function App() {
           message={toast.message}
           points={toast.points}
           title={toast.title}
+          theme={currentTheme}
           onHide={() => setToast((prev) => ({ ...prev, visible: false }))}
         />
       </SafeAreaView>
@@ -500,7 +467,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryText: {
-    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
@@ -516,33 +482,23 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 6,
-      },
-      web: {
-        boxShadow: '0 -2px 10px rgba(15,23,42,0.06)',
-      },
-    }),
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 2,
+    gap: 3,
+    paddingVertical: 8,
+    borderRadius: 18,
   },
   navLabel: {
+    fontFamily: fonts.bodyBold,
     fontSize: 11,
-    fontWeight: '700',
   },
 });

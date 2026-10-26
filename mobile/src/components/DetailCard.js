@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import OccupancyGauge from './OccupancyGauge';
+import { BrutalBox, LevelPill } from './Brutal';
+import { fonts } from '../theme/theme';
 
 export default function DetailCard({
   selectedItem,
@@ -14,34 +16,31 @@ export default function DetailCard({
   const { kind, data } = selectedItem;
   const isStop = kind === 'stop';
 
-  const levelsMap = [
-    { badge: t.level0Badge, hint: t.level0Hint, color: '#10B981', bg: theme.isDark ? '#064E3B' : '#D1FAE5' },
-    { badge: t.level1Badge, hint: t.level1Hint, color: '#F59E0B', bg: theme.isDark ? '#451A03' : '#FEF3C7' },
-    { badge: t.level2Badge, hint: t.level2Hint, color: '#EF4444', bg: theme.isDark ? '#450A0A' : '#FEE2E2' },
-  ];
-
-  const levelInfo = levelsMap[data.level] || {
-    badge: t.levelNoneBadge,
-    hint: t.levelNoneHint,
-    color: '#94A3B8',
-    bg: theme.cardSecondary,
-  };
+  const hints = [t.level0Hint, t.level1Hint, t.level2Hint];
+  const levelHint = hints[data.level] || t.levelNoneHint;
 
   const etaText =
     data.eta_s == null
       ? '—'
       : data.eta_s < 60
       ? t.approaching
-      : `~${Math.round(data.eta_s / 60)} ${t.minEta}`;
+      : `${Math.round(data.eta_s / 60)} ${t.minEta}`;
 
   return (
     <View style={styles.cardContainer}>
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <BrutalBox theme={theme} radius={20} contentStyle={styles.card}>
         {/* Header */}
         <View style={styles.headerRow}>
           <View style={styles.titleArea}>
-            <View style={[styles.kindBadge, { backgroundColor: theme.cardSecondary }]}>
-              <Text style={[styles.kindBadgeText, { color: theme.textSecondary }]}>
+            <View
+              style={[
+                styles.kindBadge,
+                isStop
+                  ? { backgroundColor: theme.surfaceAlt, borderColor: theme.line }
+                  : { backgroundColor: theme.live, borderColor: theme.outline },
+              ]}
+            >
+              <Text style={[styles.kindBadgeText, { color: isStop ? theme.textSecondary : theme.onColor }]}>
                 {isStop ? t.stopLabel : t.vehicleLabel}
               </Text>
             </View>
@@ -49,13 +48,16 @@ export default function DetailCard({
               {isStop ? data.name : `${t.vehicleLabel} ${data.ext_id || ''}`}
             </Text>
           </View>
-          <TouchableOpacity
-            style={[styles.closeBtn, { backgroundColor: theme.cardSecondary }]}
+          <BrutalBox
+            theme={theme}
+            radius={16}
+            offset={2}
+            color={theme.surfaceAlt}
+            contentStyle={styles.closeBtn}
             onPress={onClose}
-            activeOpacity={0.7}
           >
-            <Text style={[styles.closeBtnText, { color: theme.textSecondary }]}>✕</Text>
-          </TouchableOpacity>
+            <Text style={[styles.closeBtnText, { color: theme.text }]}>✕</Text>
+          </BrutalBox>
         </View>
 
         {/* Content row */}
@@ -67,19 +69,14 @@ export default function DetailCard({
                   {isStop ? t.arrivingEta : t.currentSpeed}
                 </Text>
                 <Text style={[styles.metricValue, { color: theme.text }]}>
-                  {isStop ? etaText : `${data.speed_kmh || 28} ${t.speedUnit}`}
+                  {isStop ? etaText : data.speed_kmh != null ? `${Math.round(data.speed_kmh)} ${t.speedUnit}` : '—'}
                 </Text>
               </View>
             </View>
 
-            <View style={[styles.levelBadge, { backgroundColor: levelInfo.bg }]}>
-              <View style={[styles.dotIndicator, { backgroundColor: levelInfo.color }]} />
-              <Text style={[styles.levelText, { color: levelInfo.color }]}>
-                {levelInfo.badge}
-              </Text>
-            </View>
+            <LevelPill level={data.level} t={t} theme={theme} />
 
-            <Text style={[styles.levelHint, { color: theme.textSecondary }]}>{levelInfo.hint}</Text>
+            <Text style={[styles.levelHint, { color: theme.textSecondary }]}>{levelHint}</Text>
           </View>
 
           <View style={styles.gaugeCol}>
@@ -89,28 +86,31 @@ export default function DetailCard({
         </View>
 
         {/* Stats */}
-        <View style={[styles.statsRow, { borderTopColor: theme.border }]}>
+        <View style={[styles.statsRow, { borderTopColor: theme.line }]}>
           <Text style={[styles.statsNote, { color: theme.textSecondary }]}>
             {isStop
-              ? `${t.basedOnReports}: ${data.count || 3}`
-              : `${t.ridersInVehicle} ${data.riders || 2}`}
+              ? `${t.basedOnReports}: ${data.count ?? 0}`
+              : `${t.ridersInVehicle} ${data.riders ?? 0}`}
           </Text>
         </View>
 
         {/* Check-in button */}
-        <TouchableOpacity
-          style={[styles.checkinButton, { backgroundColor: theme.primary }]}
+        <BrutalBox
+          theme={theme}
+          color={theme.action}
+          radius={16}
+          offset={3}
+          contentStyle={styles.checkinButton}
           onPress={() => onCheckinPress(data, isStop)}
-          activeOpacity={0.8}
         >
-          <Text style={styles.checkinText}>
+          <Text style={[styles.checkinText, { color: theme.onAction }]}>
             {isStop ? t.checkinButtonStop : t.checkinButtonVehicle}
           </Text>
-          <View style={styles.rewardPill}>
-            <Text style={styles.rewardText}>+10 B</Text>
+          <View style={[styles.rewardPill, { backgroundColor: theme.reward, borderColor: theme.outline }]}>
+            <Text style={[styles.rewardText, { color: theme.onColor }]}>+10 B</Text>
           </View>
-        </TouchableOpacity>
-      </View>
+        </BrutalBox>
+      </BrutalBox>
     </View>
   );
 }
@@ -124,23 +124,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   card: {
-    borderRadius: 24,
     padding: 16,
-    borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 8,
-      },
-      web: {
-        boxShadow: '0 8px 30px rgba(15,23,42,0.18)',
-      },
-    }),
   },
   headerRow: {
     flexDirection: 'row',
@@ -156,28 +140,28 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
-    marginBottom: 4,
+    borderRadius: 999,
+    borderWidth: 2,
+    marginBottom: 6,
   },
   kindBadgeText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 10,
-    fontWeight: '700',
     textTransform: 'uppercase',
   },
   title: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontFamily: fonts.displayBold,
+    fontSize: 16,
   },
   closeBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeBtnText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
-    fontWeight: '700',
   },
   contentRow: {
     flexDirection: 'row',
@@ -194,34 +178,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metricLabel: {
+    fontFamily: fonts.bodyBold,
     fontSize: 11,
-    fontWeight: '600',
   },
   metricValue: {
-    fontSize: 16,
-    fontWeight: '800',
-    marginTop: 1,
-  },
-  levelBadge: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 6,
-  },
-  dotIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  levelText: {
-    fontSize: 12,
-    fontWeight: '800',
+    fontFamily: fonts.display,
+    fontSize: 18,
+    marginTop: 2,
   },
   levelHint: {
-    fontSize: 11,
+    fontFamily: fonts.body,
+    fontSize: 12,
     marginTop: 2,
   },
   gaugeCol: {
@@ -229,17 +196,18 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   gaugeCaption: {
+    fontFamily: fonts.bodyBold,
     fontSize: 10,
     marginTop: 4,
-    fontWeight: '600',
   },
   statsRow: {
-    borderTopWidth: 1,
+    borderTopWidth: 2,
     paddingTop: 8,
     marginBottom: 12,
   },
   statsNote: {
-    fontSize: 11,
+    fontFamily: fonts.body,
+    fontSize: 12,
   },
   checkinButton: {
     flexDirection: 'row',
@@ -247,28 +215,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 16,
     gap: 8,
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   checkinText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 15,
   },
   rewardPill: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 999,
+    borderWidth: 2,
   },
   rewardText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFFFF',
   },
 });

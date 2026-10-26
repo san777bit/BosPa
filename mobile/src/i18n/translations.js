@@ -95,6 +95,14 @@ export const translations = {
     loadError: 'Не удалось связаться с сервером BosPa.',
     retry: 'Повторить',
     routeUnverified: 'Данные проверяются',
+    nearbyStop: 'Остановка рядом',
+    enableLocationHint: 'Разрешите геопозицию, и здесь появится ближайшая остановка',
+    nearbyNoData: 'Пока нет данных о бортах на подходе',
+    metersUnit: 'м',
+    kmUnit: 'км',
+    etaNow: 'сейчас',
+    hubRoutesShort: 'Все автобусы и троллейбусы',
+    hubMapShort: 'Борта вживую',
 
     // Occupancy levels
     level0Badge: 'Свободно',
@@ -224,6 +232,14 @@ export const translations = {
     loadError: 'BosPa серверіне қосылу мүмкін болмады.',
     retry: 'Қайталау',
     routeUnverified: 'Деректер тексерілуде',
+    nearbyStop: 'Жақын аялдама',
+    enableLocationHint: 'Геолокацияға рұқсат беріңіз, сонда мұнда ең жақын аялдама шығады',
+    nearbyNoData: 'Жақындап келе жатқан көліктер туралы дерек әлі жоқ',
+    metersUnit: 'м',
+    kmUnit: 'км',
+    etaNow: 'қазір',
+    hubRoutesShort: 'Барлық автобустар мен троллейбустар',
+    hubMapShort: 'Көліктер тікелей эфирде',
 
     // Occupancy levels
     level0Badge: 'Бос',
@@ -353,6 +369,14 @@ export const translations = {
     loadError: 'Could not reach the BosPa server.',
     retry: 'Retry',
     routeUnverified: 'Data being verified',
+    nearbyStop: 'Stop nearby',
+    enableLocationHint: 'Allow location access to see the nearest stop here',
+    nearbyNoData: 'No data on approaching vehicles yet',
+    metersUnit: 'm',
+    kmUnit: 'km',
+    etaNow: 'now',
+    hubRoutesShort: 'All buses and trolleybuses',
+    hubMapShort: 'Vehicles live',
 
     // Occupancy levels
     level0Badge: 'Empty',

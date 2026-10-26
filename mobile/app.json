@@ -4,13 +4,8 @@
     "slug": "bospa",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/logo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#10B981"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "kz.bospa.app"
@@ -18,12 +13,12 @@
     "android": {
       "package": "kz.bospa.app",
       "adaptiveIcon": {
-        "backgroundColor": "#10B981",
-        "foregroundImage": "./assets/logo.png"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#BFE3FA"
       }
     },
     "web": {
-      "favicon": "./assets/logo.png",
+      "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
@@ -32,6 +27,16 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "BosPa проверяет, что вы на остановке или в автобусе, чтобы начислить баллы за отметку."
+        }
+      ],
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#BFE3FA"
         }
       ]
     ]

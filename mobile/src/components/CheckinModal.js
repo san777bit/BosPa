@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal } from 'react-native';
+import { BrutalBox } from './Brutal';
+import { fonts, statusColor } from '../theme/theme';
 
 export default function CheckinModal({
   visible,
@@ -14,9 +16,9 @@ export default function CheckinModal({
   if (!visible) return null;
 
   const levelsList = [
-    { id: 0, badge: t.level0Badge, hint: t.level0Hint, color: '#10B981', bg: theme.isDark ? '#064E3B' : '#D1FAE5' },
-    { id: 1, badge: t.level1Badge, hint: t.level1Hint, color: '#F59E0B', bg: theme.isDark ? '#451A03' : '#FEF3C7' },
-    { id: 2, badge: t.level2Badge, hint: t.level2Hint, color: '#EF4444', bg: theme.isDark ? '#450A0A' : '#FEE2E2' },
+    { id: 0, badge: t.level0Badge, hint: t.level0Hint, color: statusColor(theme, 0) },
+    { id: 1, badge: t.level1Badge, hint: t.level1Hint, color: statusColor(theme, 1) },
+    { id: 2, badge: t.level2Badge, hint: t.level2Hint, color: statusColor(theme, 2) },
   ];
 
   return (
@@ -27,7 +29,7 @@ export default function CheckinModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={[styles.modal, { backgroundColor: theme.card }]}>
+        <BrutalBox theme={theme} radius={24} offset={5} style={styles.modalWrap} contentStyle={styles.modal}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.titleWrap}>
@@ -36,13 +38,16 @@ export default function CheckinModal({
                 {target?.name || ''}
               </Text>
             </View>
-            <TouchableOpacity
-              style={[styles.closeBtn, { backgroundColor: theme.cardSecondary }]}
+            <BrutalBox
+              theme={theme}
+              radius={16}
+              offset={2}
+              color={theme.surfaceAlt}
+              contentStyle={styles.closeBtn}
               onPress={onClose}
-              activeOpacity={0.7}
             >
-              <Text style={[styles.closeText, { color: theme.textSecondary }]}>✕</Text>
-            </TouchableOpacity>
+              <Text style={[styles.closeText, { color: theme.text }]}>✕</Text>
+            </BrutalBox>
           </View>
 
           {/* Options */}
@@ -50,62 +55,79 @@ export default function CheckinModal({
             {levelsList.map((lvl) => {
               const isSelected = selectedLevel === lvl.id;
               return (
-                <TouchableOpacity
+                <BrutalBox
                   key={lvl.id}
-                  style={[
-                    styles.optionCard,
-                    { backgroundColor: theme.cardSecondary, borderColor: theme.border },
-                    isSelected && { borderColor: lvl.color, backgroundColor: lvl.bg },
-                  ]}
+                  theme={theme}
+                  radius={16}
+                  offset={3}
+                  color={isSelected ? lvl.color : theme.surface}
+                  contentStyle={styles.optionCard}
                   onPress={() => setSelectedLevel(lvl.id)}
-                  activeOpacity={0.7}
                 >
-                  <View style={[styles.statusDotLarge, { backgroundColor: lvl.color }]} />
+                  <View style={[styles.statusDotLarge, { backgroundColor: lvl.color, borderColor: theme.outline }]} />
                   <View style={styles.optionContent}>
                     <Text
                       style={[
                         styles.optionTitle,
-                        { color: theme.text },
-                        isSelected && { color: lvl.color },
+                        { color: isSelected ? theme.onColor : theme.text },
                       ]}
                     >
                       {lvl.badge}
                     </Text>
-                    <Text style={[styles.optionHint, { color: theme.textSecondary }]}>{lvl.hint}</Text>
+                    <Text
+                      style={[
+                        styles.optionHint,
+                        { color: isSelected ? theme.onColor : theme.textSecondary },
+                      ]}
+                    >
+                      {lvl.hint}
+                    </Text>
                   </View>
                   <View
                     style={[
                       styles.radioCircle,
-                      { borderColor: theme.textMuted },
-                      isSelected && { borderColor: lvl.color, backgroundColor: lvl.color },
+                      {
+                        borderColor: isSelected ? theme.onColor : theme.textMuted,
+                        backgroundColor: isSelected ? theme.onColor : 'transparent',
+                      },
                     ]}
                   >
-                    {isSelected && <View style={styles.radioInner} />}
+                    {isSelected && <View style={[styles.radioInner, { backgroundColor: lvl.color }]} />}
                   </View>
-                </TouchableOpacity>
+                </BrutalBox>
               );
             })}
           </View>
 
           {/* Reward notice */}
-          <View style={[styles.rewardBanner, { backgroundColor: theme.coinBg, borderColor: theme.coinBorder }]}>
-            <View style={[styles.rewardIconBadge, { backgroundColor: theme.coin }]}>
-              <Text style={styles.rewardIconText}>B</Text>
+          <BrutalBox
+            theme={theme}
+            radius={14}
+            offset={3}
+            color={theme.reward}
+            style={styles.rewardWrap}
+            contentStyle={styles.rewardBanner}
+          >
+            <View style={[styles.rewardIconBadge, { backgroundColor: theme.reward, borderColor: theme.onColor }]}>
+              <Text style={[styles.rewardIconText, { color: theme.onColor }]}>B</Text>
             </View>
-            <Text style={[styles.rewardText, { color: theme.isDark ? '#FDE68A' : '#92400E' }]}>
+            <Text style={[styles.rewardText, { color: theme.onColor }]}>
               {t.checkinRewardNote} <Text style={styles.boldText}>{t.checkinRewardPoints}</Text> BosPa
             </Text>
-          </View>
+          </BrutalBox>
 
           {/* Submit button */}
-          <TouchableOpacity
-            style={[styles.submitButton, { backgroundColor: theme.primary }]}
+          <BrutalBox
+            theme={theme}
+            color={theme.action}
+            radius={16}
+            offset={3}
+            contentStyle={styles.submitButton}
             onPress={() => onSubmit(selectedLevel)}
-            activeOpacity={0.8}
           >
-            <Text style={styles.submitText}>{t.sendCheckin}</Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={[styles.submitText, { color: theme.onAction }]}>{t.sendCheckin}</Text>
+          </BrutalBox>
+        </BrutalBox>
       </View>
     </Modal>
   );
@@ -114,30 +136,17 @@ export default function CheckinModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    backgroundColor: 'rgba(17, 17, 17, 0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  modal: {
+  modalWrap: {
     width: '100%',
     maxWidth: 400,
-    borderRadius: 28,
+  },
+  modal: {
     padding: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 10,
-      },
-      web: {
-        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-      },
-    }),
   },
   header: {
     flexDirection: 'row',
@@ -150,58 +159,57 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   title: {
+    fontFamily: fonts.display,
     fontSize: 18,
-    fontWeight: '800',
   },
   subtitle: {
-    fontSize: 12,
+    fontFamily: fonts.bodyBold,
+    fontSize: 13,
     marginTop: 2,
-    fontWeight: '500',
   },
   closeBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeText: {
+    fontFamily: fonts.bodyHeavy,
     fontSize: 14,
-    fontWeight: '700',
   },
   optionsList: {
-    gap: 10,
-    marginBottom: 16,
+    gap: 8,
+    marginBottom: 12,
   },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    borderRadius: 18,
-    borderWidth: 2,
     gap: 12,
   },
   statusDotLarge: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
   },
   optionContent: {
     flex: 1,
   },
   optionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 16,
   },
   optionHint: {
-    fontSize: 11,
+    fontFamily: fonts.body,
+    fontSize: 12,
     marginTop: 2,
   },
   radioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -209,50 +217,43 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FFFFFF',
+  },
+  rewardWrap: {
+    marginBottom: 12,
   },
   rewardBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 14,
     gap: 10,
-    marginBottom: 16,
-    borderWidth: 1,
   },
   rewardIconBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rewardIconText: {
-    color: '#FFFFFF',
+    fontFamily: fonts.display,
     fontSize: 11,
-    fontWeight: '900',
   },
   rewardText: {
-    fontSize: 12,
+    fontFamily: fonts.body,
+    fontSize: 13,
     flex: 1,
   },
   boldText: {
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
   },
   submitButton: {
     paddingVertical: 14,
-    borderRadius: 18,
     alignItems: 'center',
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   submitText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
+    fontFamily: fonts.bodyHeavy,
+    fontSize: 16,
   },
 });

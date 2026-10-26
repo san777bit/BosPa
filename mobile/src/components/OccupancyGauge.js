@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Colors } from '../theme/colors';
 
+const INK = Colors.ink;
+const OFF = '#E5E7EB';
+
 /**
- * OccupancyGauge: Visual passenger occupancy meter styled after the BosPa reference logo!
- * Features 3 passenger silhouettes and a traffic-light indicator bar.
+ * OccupancyGauge: индикатор загруженности — светофор и три силуэта пассажиров.
+ * Цвета берутся из theme.js через colors.js (те же, что у плашек LevelPill).
  */
 export default function OccupancyGauge({ level = 0 }) {
   // level: 0 (free), 1 (medium), 2 (full), or null
@@ -12,34 +15,25 @@ export default function OccupancyGauge({ level = 0 }) {
   const isMedium = level === 1;
   const isFull = level === 2;
 
+  const passengerColor = (min) => (level != null && level >= min ? INK : OFF);
+
   return (
     <View style={styles.container}>
-      {/* Top traffic-light occupancy pill */}
+      {/* Светофор загруженности */}
       <View style={styles.trafficLightBar}>
-        <View style={[styles.lightDot, { backgroundColor: isFree ? '#10B981' : '#E2E8F0', opacity: isFree ? 1 : 0.4 }]} />
-        <View style={[styles.lightDot, { backgroundColor: isMedium ? '#F59E0B' : '#E2E8F0', opacity: isMedium ? 1 : 0.4 }]} />
-        <View style={[styles.lightDot, { backgroundColor: isFull ? '#EF4444' : '#E2E8F0', opacity: isFull ? 1 : 0.4 }]} />
+        <View style={[styles.lightDot, { backgroundColor: isFree ? Colors.levelFree : '#4B5563' }]} />
+        <View style={[styles.lightDot, { backgroundColor: isMedium ? Colors.levelMedium : '#4B5563' }]} />
+        <View style={[styles.lightDot, { backgroundColor: isFull ? Colors.levelFull : '#4B5563' }]} />
       </View>
 
-      {/* Stylized windshield with 3 passengers (from the logo!) */}
+      {/* Три пассажира: чем больше закрашено, тем плотнее */}
       <View style={styles.windshield}>
-        {/* Passenger 1 */}
-        <View style={styles.passenger}>
-          <View style={[styles.head, { backgroundColor: level != null && level >= 0 ? '#0F172A' : '#CBD5E1' }]} />
-          <View style={[styles.body, { backgroundColor: level != null && level >= 0 ? '#0F172A' : '#CBD5E1' }]} />
-        </View>
-
-        {/* Passenger 2 */}
-        <View style={styles.passenger}>
-          <View style={[styles.head, { backgroundColor: level != null && level >= 1 ? '#0F172A' : '#CBD5E1' }]} />
-          <View style={[styles.body, { backgroundColor: level != null && level >= 1 ? '#0F172A' : '#CBD5E1' }]} />
-        </View>
-
-        {/* Passenger 3 */}
-        <View style={styles.passenger}>
-          <View style={[styles.head, { backgroundColor: level != null && level >= 2 ? '#0F172A' : '#CBD5E1' }]} />
-          <View style={[styles.body, { backgroundColor: level != null && level >= 2 ? '#0F172A' : '#CBD5E1' }]} />
-        </View>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={styles.passenger}>
+            <View style={[styles.head, { backgroundColor: passengerColor(i) }]} />
+            <View style={[styles.body, { backgroundColor: passengerColor(i) }]} />
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -48,26 +42,26 @@ export default function OccupancyGauge({ level = 0 }) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderWidth: 2.5,
+    borderColor: INK,
   },
   trafficLightBar: {
     flexDirection: 'row',
     gap: 6,
-    backgroundColor: '#1E293B',
+    backgroundColor: INK,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 20,
+    borderRadius: 999,
     marginBottom: 8,
   },
   lightDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
   },
   windshield: {
     flexDirection: 'row',

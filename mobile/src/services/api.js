@@ -85,6 +85,21 @@ async function request(path, { method = 'GET', body, retry = true } = {}) {
 
 const q = (routeId, dirId) => `route=${encodeURIComponent(routeId)}&dir=${encodeURIComponent(dirId)}`;
 
+// Остановки направления без статуса: сразу после смены маршрута, пока сервер не ответил
+export function stopsWithoutStatus(direction) {
+  return direction.stops.map((stop) => ({
+    stop_id: stop.id,
+    name: stop.name,
+    lat: stop.lat,
+    lon: stop.lon,
+    s: stop.s,
+    level: null,
+    count: 0,
+    eta_s: null,
+    vehicle_id: null,
+  }));
+}
+
 export const Api = {
   // Маршруты в формате приложения: линия — [lat, lon], как ждёт Leaflet (сервер отдаёт GeoJSON [lon, lat])
   async getRoutes() {
@@ -106,18 +121,7 @@ export const Api = {
   async getStopsStatus(direction, routeId) {
     const statuses = await request(`/api/stops/status?${q(routeId, direction.id)}`);
     const byId = new Map(statuses.map((s) => [s.stop_id, s]));
-    return direction.stops.map((stop) => ({
-      stop_id: stop.id,
-      name: stop.name,
-      lat: stop.lat,
-      lon: stop.lon,
-      s: stop.s,
-      level: null,
-      count: 0,
-      eta_s: null,
-      vehicle_id: null,
-      ...byId.get(stop.id),
-    }));
+    return stopsWithoutStatus(direction).map((stop) => ({ ...stop, ...byId.get(stop.stop_id) }));
   },
 
   getMe() {
