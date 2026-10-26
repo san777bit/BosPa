@@ -51,30 +51,32 @@ const light = {
   mapFilter: 'none',
 };
 
-// Тёмная тема: обводка остаётся чёрной, а фон светлее чёрного, чтобы тени читались.
+// Тёмная тема — фиолетовая. Обводка почти чёрная, а фон светлее неё, чтобы тени читались.
+// Поверхности светлеют снизу вверх: bg → surface → surfaceAlt, рамка line светлее surface.
+// Текст темнеет по важности: text → textSecondary → textMuted.
 // Пастель приглушена, чтобы цветные плашки не «светились» на тёмном.
 const dark = {
   isDark: true,
-  bg: '#180020',
-  surface: '#211020',
-  surfaceAlt: '#3a1939',
-  outline: '#0B0C0F',
-  line: '#1c0e1c',
+  bg: '#24112F',
+  surface: '#331B42',
+  surfaceAlt: '#422954',
+  outline: '#07020B',
+  line: '#5C4472',
   borderWidth: 2.5,
-  text: '#F3F4F6',
-  textSecondary: '#aaa8a8',
-  textMuted: '#cccccc',
+  text: '#F5F0FA',
+  textSecondary: '#CDBFDB',
+  textMuted: '#9C8BAD',
   onColor: '#111111',
   action: '#F3F4F6',
   onAction: '#111111',
   reward: '#EBC43A',
   live: '#AE9FF0',
   status: ['#43C878', '#EDA544', '#EA6363'],
-  statusNone: '#9AA1AD',
+  statusNone: '#A898B8',
   transit: { trolleybus: '#6CB6EA', bus: '#E595BE' },
-  navBg: '#0B0C0F',
-  navActive: '#F3F4F6',
-  navIcon: '#8F96A3',
+  navBg: '#07020B',
+  navActive: '#F5F0FA',
+  navIcon: '#9C8BAD',
   navIconActive: '#111111',
   statusBarStyle: 'light-content',
   mapFilter: 'invert(90%) hue-rotate(180deg) brightness(85%) contrast(110%)',
