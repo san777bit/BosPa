@@ -106,3 +106,15 @@ async def test_ride_flow(client, monkeypatch):
 
     assert (await client.delete("/api/ride", headers=_h(dev))).status_code == 204
     assert (await client.post("/api/ride/location", json=point(1400), headers=_h(dev))).status_code == 409
+
+
+async def test_cors_for_web_app(network, repo, sessionmaker):
+    origin = "http://localhost:8081"
+    app = create_app(Settings(bot_token=None, cors_origins=[origin]), network, repo, sessionmaker)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://t") as c:
+        r = await c.options("/api/checkins", headers={
+            "Origin": origin, "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization,content-type"})
+        assert r.status_code == 200 and r.headers["access-control-allow-origin"] == origin
+        r = await c.post("/api/devices", headers={"Origin": "http://evil.example"})
+        assert "access-control-allow-origin" not in r.headers

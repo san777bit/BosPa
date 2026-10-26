@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Animated } from 'react-native';
 import { Colors } from '../theme/colors';
 
-export default function RewardToast({ message, points = 10, visible, onHide }) {
+export default function RewardToast({ message, points = 10, title, visible, onHide }) {
   const translateY = new Animated.Value(-100);
   const opacity = new Animated.Value(0);
 
@@ -52,7 +52,7 @@ export default function RewardToast({ message, points = 10, visible, onHide }) {
           <Text style={styles.badgeText}>+B</Text>
         </View>
         <View style={styles.textWrap}>
-          <Text style={styles.title}>+{points} баллов BosPa</Text>
+          <Text style={styles.title}>{title || `+${points} баллов BosPa`}</Text>
           <Text style={styles.desc}>{message}</Text>
         </View>
       </View>

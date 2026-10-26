@@ -6,11 +6,13 @@ import {
   StatusBar,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { themes } from './src/theme/theme';
 import { translations } from './src/i18n/translations';
-import { TransitService } from './src/services/transitService';
+import { Api } from './src/services/api';
+import { getCurrentLocation } from './src/services/location';
 import Header from './src/components/Header';
 import RouteSelector from './src/components/RouteSelector';
 import TransitMap from './src/components/TransitMap';
@@ -35,25 +37,47 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState('home');
 
-  const routes = TransitService.getRoutes();
-  const [selectedRouteId, setSelectedRouteId] = useState(routes[0]?.id || 't7');
-  const currentRoute = TransitService.getRoute(selectedRouteId);
-  const [selectedDirId, setSelectedDirId] = useState(currentRoute?.directions[0]?.id || 'a');
-  const currentDirection = TransitService.getDirection(selectedRouteId, selectedDirId);
+  // 'loading' | 'error' | 'ready'
+  const [loadState, setLoadState] = useState('loading');
+  const [routes, setRoutes] = useState([]);
+  const [selectedRouteId, setSelectedRouteId] = useState(null);
+  const currentRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
+  const [selectedDirId, setSelectedDirId] = useState(null);
+  const currentDirection =
+    currentRoute?.directions.find((d) => d.id === selectedDirId) || currentRoute?.directions[0];
 
   const [vehicles, setVehicles] = useState([]);
   const [stopsWithStatus, setStopsWithStatus] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const [userPoints, setUserPoints] = useState(50);
+  const [userPoints, setUserPoints] = useState(0);
   const [checkinModalVisible, setCheckinModalVisible] = useState(false);
   const [stopsDrawerVisible, setStopsDrawerVisible] = useState(false);
-  const [toast, setToast] = useState({ visible: false, message: '', points: 10 });
+  const [toast, setToast] = useState({ visible: false, message: '', points: 10, title: null });
+
+  const loadInitial = async () => {
+    setLoadState('loading');
+    try {
+      const [loadedRoutes, me] = await Promise.all([Api.getRoutes(), Api.getMe()]);
+      if (loadedRoutes.length === 0) throw new Error('no routes');
+      setRoutes(loadedRoutes);
+      setSelectedRouteId((prev) => prev || loadedRoutes[0]?.id || null);
+      setUserPoints(me.balance);
+      setLoadState('ready');
+    } catch (e) {
+      console.warn('BosPa API:', e.message);
+      setLoadState('error');
+    }
+  };
+
+  useEffect(() => {
+    loadInitial();
+  }, []);
 
   const handleSelectRoute = (routeId) => {
     setSelectedRouteId(routeId);
-    const newRoute = TransitService.getRoute(routeId);
-    const firstDirId = newRoute?.directions[0]?.id || 'a';
+    const newRoute = routes.find((r) => r.id === routeId);
+    const firstDirId = newRoute?.directions[0]?.id || null;
     setSelectedDirId(firstDirId);
     setSelectedItem(null);
   };
@@ -70,10 +94,34 @@ export default function App() {
     setActiveTab('map');
   };
 
+  // Маршрут приходит в карту, пока вкладка скрыта, — при открытии показываем его целиком
   useEffect(() => {
-    const updateTick = () => {
-      const liveVehs = TransitService.getLiveVehicles(selectedRouteId, selectedDirId);
-      const stopsStatus = TransitService.getStopsStatus(selectedRouteId, selectedDirId, liveVehs);
+    if (activeTab === 'map') mapRef.current?.fitRoute();
+  }, [activeTab, currentRoute?.id, currentDirection?.id]);
+
+  // Обновление карты по запросу (после отметки), не дожидаясь очередного тика
+  const refreshRef = useRef(null);
+
+  useEffect(() => {
+    if (loadState !== 'ready' || activeTab !== 'map' || !currentRoute || !currentDirection) {
+      return undefined;
+    }
+    let cancelled = false;
+    const routeId = currentRoute.id;
+    const direction = currentDirection;
+
+    const updateTick = async () => {
+      let liveVehs;
+      let stopsStatus;
+      try {
+        [liveVehs, stopsStatus] = await Promise.all([
+          Api.getVehicles(routeId, direction.id),
+          Api.getStopsStatus(direction, routeId),
+        ]);
+      } catch (e) {
+        return; // сеть пропала — повторим на следующем тике
+      }
+      if (cancelled) return;
 
       setVehicles(liveVehs);
       setStopsWithStatus(stopsStatus);
@@ -97,10 +145,16 @@ export default function App() {
       });
     };
 
+    refreshRef.current = updateTick;
     updateTick();
-    const interval = setInterval(updateTick, 2000);
-    return () => clearInterval(interval);
-  }, [selectedRouteId, selectedDirId]);
+    // Сервер пересчитывает борта раз в 3 с (fusion_interval_s)
+    const interval = setInterval(updateTick, 3000);
+    return () => {
+      cancelled = true;
+      refreshRef.current = null;
+      clearInterval(interval);
+    };
+  }, [loadState, activeTab, currentRoute?.id, currentDirection?.id]);
 
   const handleSelectStop = (stop) => {
     setSelectedItem({ kind: 'stop', data: stop });
@@ -116,42 +170,82 @@ export default function App() {
     }
   };
 
-  const handleCheckinSubmit = (level) => {
-    if (!selectedItem) return;
+  // Отметка всегда привязана к остановке: для борта берём ближайшую к нему по линии
+  const nearestStopId = (vehicle) => {
+    let best = null;
+    currentDirection.stops.forEach((stop) => {
+      if (!best || Math.abs(stop.s - vehicle.s) < Math.abs(best.s - vehicle.s)) best = stop;
+    });
+    return best?.id;
+  };
 
+  const showToast = (fields) => setToast({ visible: true, points: 0, title: null, ...fields });
+
+  const handleCheckinSubmit = async (level) => {
+    if (!selectedItem || !currentRoute || !currentDirection) return;
     const stopId =
-      selectedItem.kind === 'stop' ? selectedItem.data.stop_id : stopsWithStatus[0]?.stop_id;
-
-    const result = TransitService.submitCheckin(
-      selectedRouteId,
-      selectedDirId,
-      stopId,
-      level,
-    );
-
-    setUserPoints((prev) => prev + result.pointsEarned);
+      selectedItem.kind === 'stop' ? selectedItem.data.stop_id : nearestStopId(selectedItem.data);
     setCheckinModalVisible(false);
 
-    const liveVehs = TransitService.getLiveVehicles(selectedRouteId, selectedDirId);
-    const nextStopsStatus = TransitService.getStopsStatus(selectedRouteId, selectedDirId, liveVehs);
-    setVehicles(liveVehs);
-    setStopsWithStatus(nextStopsStatus);
-
-    if (mapRef.current) {
-      mapRef.current.updateVehicles(liveVehs);
-      mapRef.current.updateStops(nextStopsStatus);
+    let res;
+    try {
+      // Геопозиция нужна серверу для антифрода: без неё отметка учитывается без баллов
+      const loc = await getCurrentLocation();
+      if (loc) await Api.sendLocation(loc.lat, loc.lon);
+      res = await Api.submitCheckin(currentRoute.id, currentDirection.id, stopId, level);
+    } catch (e) {
+      showToast({ title: t.toastErrorTitle, message: t.toastNetworkError });
+      return;
     }
 
-    setToast({
-      visible: true,
-      message: t.toastCheckinSuccess,
-      points: result.pointsEarned,
-    });
+    if (!res.accepted) {
+      showToast({ title: t.toastErrorTitle, message: t.toastCheckinCooldown });
+      return;
+    }
+    setUserPoints(res.balance);
+    if (res.rewarded) {
+      showToast({ message: t.toastCheckinSuccess, points: res.points });
+    } else {
+      const hourly = res.reasons.includes('hourly_limit');
+      showToast({
+        title: t.toastCountedTitle,
+        message: hourly ? t.toastCheckinHourlyLimit : t.toastCheckinNoPoints,
+      });
+    }
+    refreshRef.current?.();
   };
 
   const handleDeductPoints = (amount) => {
     setUserPoints((prev) => Math.max(0, prev - amount));
   };
+
+  if (loadState !== 'ready' || !currentRoute) {
+    return (
+      <SafeAreaProvider>
+        <SafeAreaView style={[styles.safeArea, styles.centered, { backgroundColor: currentTheme.bg }]}>
+          {loadState === 'error' ? (
+            <>
+              <Text style={[styles.statusText, { color: currentTheme.text }]}>{t.loadError}</Text>
+              <TouchableOpacity
+                style={[styles.retryButton, { backgroundColor: currentTheme.primary }]}
+                onPress={loadInitial}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.retryText}>{t.retry}</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <ActivityIndicator size="large" color={currentTheme.primary} />
+              <Text style={[styles.statusText, { color: currentTheme.textSecondary }]}>
+                {t.loadingData}
+              </Text>
+            </>
+          )}
+        </SafeAreaView>
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -373,6 +467,7 @@ export default function App() {
           visible={toast.visible}
           message={toast.message}
           points={toast.points}
+          title={toast.title}
           onHide={() => setToast((prev) => ({ ...prev, visible: false }))}
         />
       </SafeAreaView>
@@ -387,6 +482,27 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  statusText: {
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  retryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
   contentArea: {
     flex: 1,

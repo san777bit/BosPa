@@ -61,7 +61,8 @@ async def seed_checkins(network: Network, repo: RedisRepo) -> None:
 
 
 async def main() -> None:
-    settings = Settings(bot_token="0:demo", api_dev_no_auth=True)
+    # CORS — для веб-версии мобильного приложения (npx expo start --web, порт 8081)
+    settings = Settings(bot_token="0:demo", api_dev_no_auth=True, cors_origins=["http://localhost:8081"])
     network = Network.load(settings.routes_file)
     repo = RedisRepo(FakeAsyncRedis())
     engine = make_engine("sqlite+aiosqlite:///:memory:")

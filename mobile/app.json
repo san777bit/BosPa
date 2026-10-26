@@ -25,6 +25,15 @@
     "web": {
       "favicon": "./assets/logo.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "BosPa проверяет, что вы на остановке или в автобусе, чтобы начислить баллы за отметку."
+        }
+      ]
+    ]
   }
 }

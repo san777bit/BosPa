@@ -462,6 +462,8 @@ function generateInitialMapHtml(initialIsDark = false) {
           renderStops(msg.stops);
         } else if (msg.action === 'FIT_ROUTE') {
           if (routeLine) {
+            // Карта могла получить маршрут скрытой (вкладка не открыта) — пересчитать размер
+            map.invalidateSize();
             map.fitBounds(routeLine.getBounds(), { padding: [50, 50], animate: true });
           }
         } else if (msg.action === 'FLY_TO') {

@@ -2,6 +2,7 @@ import time
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -40,6 +41,10 @@ class RideIn(BaseModel):
 
 def create_app(settings: Settings, network: Network, repo: RedisRepo, sessionmaker: async_sessionmaker) -> FastAPI:
     app = FastAPI(title="BosPa API", docs_url=None, redoc_url=None)
+    if settings.cors_origins:
+        app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins,
+                           allow_methods=["GET", "POST", "DELETE"],
+                           allow_headers=["Authorization", "Content-Type", "X-Telegram-Init-Data"])
     statuses = StatusService(network, repo)
     checkins = CheckinService(network, repo, sessionmaker)
     rides = RideService(network, repo, sessionmaker)

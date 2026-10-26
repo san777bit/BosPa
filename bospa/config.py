@@ -20,5 +20,8 @@ class Settings(BaseSettings):
     # Только для локальной разработки: пропускать проверку Telegram initData.
     api_dev_no_auth: bool = False
     map_style_url: str = "https://tiles.openfreemap.org/styles/liberty"
+    # Источники, которым разрешён доступ к API из браузера (веб-версия мобильного приложения),
+    # JSON-список: CORS_ORIGINS='["http://localhost:8081"]'. Нативному приложению CORS не нужен.
+    cors_origins: list[str] = []
 
     fusion_interval_s: float = 3.0

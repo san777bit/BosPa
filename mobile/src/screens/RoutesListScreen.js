@@ -123,7 +123,7 @@ export default function RoutesListScreen({
                   <Text style={[styles.routeTitle, { color: theme.text }]}>{route.title}</Text>
                   <View style={[styles.verifiedChip, { backgroundColor: theme.primaryBg, borderColor: theme.primaryBorder }]}>
                     <Text style={[styles.verifiedChipText, { color: theme.primary }]}>
-                      {t.verifiedOsm}
+                      {route.verified ? t.verifiedOsm : t.routeUnverified}
                     </Text>
                   </View>
                 </View>
