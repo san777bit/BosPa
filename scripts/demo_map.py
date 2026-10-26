@@ -1,11 +1,13 @@
 """Локальная демонстрация карты без Telegram и Redis.
 
     uv run python scripts/demo_map.py   →   http://localhost:8080/app/
+    uv run python scripts/demo_map.py --host 0.0.0.0   — доступ из локальной сети (телефон с Expo Go)
 
 По каждому направлению «едут» смоделированные пассажиры (источник А), цикл
 слияния строит из них борта, на нескольких остановках есть случайные отметки.
 """
 
+import argparse
 import asyncio
 import random
 import sys
@@ -60,7 +62,7 @@ async def seed_checkins(network: Network, repo: RedisRepo) -> None:
                                        Checkin(1000 + i, rnd.choice((0, 1, 2)), 1.0, now - rnd.randint(0, 600)))
 
 
-async def main() -> None:
+async def main(host: str) -> None:
     # CORS — для веб-версии мобильного приложения (npx expo start --web, порт 8081)
     settings = Settings(bot_token="0:demo", api_dev_no_auth=True, cors_origins=["http://localhost:8081"])
     network = Network.load(settings.routes_file)
@@ -73,10 +75,13 @@ async def main() -> None:
     await seed_checkins(network, repo)
 
     server = uvicorn.Server(uvicorn.Config(create_app(settings, network, repo, sessionmaker),
-                                           host="127.0.0.1", port=settings.api_port))
+                                           host=host, port=settings.api_port))
     print(f"карта: http://localhost:{settings.api_port}/app/")
     await asyncio.gather(server.serve(), simulate(network, repo, rides), fusion.run(TICK_S))
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="адрес для API; 0.0.0.0 — доступ с телефона в той же сети")
+    asyncio.run(main(parser.parse_args().host))
